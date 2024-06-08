@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono
 @Component
 class CoAssembleAuthenticationProvider(
     private val passwordEncoder: PasswordEncoder,
-    private val coAssembleUserDetailsService: UserDetailsService
+    private val coAssembleUserDetailsService: ReactiveUserDetailsService
 ) : ReactiveAuthenticationManager {
 
     override fun authenticate(authentication: Authentication?): Mono<Authentication> {
@@ -24,7 +24,7 @@ class CoAssembleAuthenticationProvider(
                 val username = auth.name
                 val password = auth.credentials.toString()
 
-                Mono.fromCallable { coAssembleUserDetailsService.loadUserByUsername(username) }
+                coAssembleUserDetailsService.findByUsername(username)
                     .switchIfEmpty(Mono.error(AuthProcessingException("Invalid Credentials", HttpStatus.UNAUTHORIZED)))
                     .flatMap { userDetails ->
                         if (passwordEncoder.matches(password, userDetails.password))

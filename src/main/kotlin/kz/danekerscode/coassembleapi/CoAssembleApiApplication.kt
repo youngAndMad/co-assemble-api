@@ -6,6 +6,7 @@ import org.springframework.boot.runApplication
 @SpringBootApplication
 class CoAssembleApiApplication
 
+
 fun main(args: Array<String>) {
-	runApplication<CoAssembleApiApplication>(*args)
+    runApplication<CoAssembleApiApplication>(*args)
 }

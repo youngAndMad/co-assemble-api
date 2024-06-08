@@ -1,4 +1,40 @@
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            provider: github
+            client-name: GitHub
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - user:email
+              - read:user
+        provider:
+          github:
+            user-name-attribute: login
+  mail:
+    host: ${SMTP_HOST}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    port: 587
+  main:
+    banner-mode: off
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    date-format: 'yyyy-MM-dd HH:mm:ss'
   application:
     name: co-assemble-api
-
+logging:
+  level:
+    org.springframework:
+      web: debug
+      security: debug

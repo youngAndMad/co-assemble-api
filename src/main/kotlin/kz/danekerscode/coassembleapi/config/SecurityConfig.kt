@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.config
 
+import org.springframework.boot.autoconfigure.security.reactive.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -14,6 +15,8 @@ import org.springframework.security.web.server.authentication.logout.HttpStatusR
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
 
+private val PERMITTED_URLS = arrayOf("/api/v1/auth/**", "/oauth2/**")
+
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig {
@@ -27,16 +30,17 @@ class SecurityConfig {
         coAssembleAuthenticationProvider: ReactiveAuthenticationManager
     ): SecurityWebFilterChain =
         http
+            .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .exceptionHandling {
                 it.authenticationEntryPoint(HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED))
             }
             .authenticationManager(coAssembleAuthenticationProvider)
-            .oauth2Client { }
+            .oauth2Login { }
             .authorizeExchange {
                 it
-                    .pathMatchers("/api/v1/auth/**").permitAll()
-                    .pathMatchers("/api/v1/**").authenticated()
-                    .anyExchange().permitAll()
+                    .matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                    .pathMatchers(*PERMITTED_URLS).permitAll()
+                    .anyExchange().authenticated()
             }
             /*
            * If you request POST /logout, then it will perform the following default operations using a series of LogoutHandlers:
@@ -57,7 +61,7 @@ class SecurityConfig {
             .build()
 
     @Bean
-    fun serverSecurityContextRepository() : ServerSecurityContextRepository =
+    fun serverSecurityContextRepository(): ServerSecurityContextRepository =
         WebSessionServerSecurityContextRepository()
 
 }
