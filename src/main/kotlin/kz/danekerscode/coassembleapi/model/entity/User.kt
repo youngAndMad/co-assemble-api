@@ -3,6 +3,7 @@ package kz.danekerscode.coassembleapi.model.entity
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.model.enums.SecurityRole
 import org.springframework.data.mongodb.core.mapping.Document
+import java.io.Serializable
 
 @Document("users")
 class User(
@@ -14,6 +15,6 @@ class User(
     var provider: AuthType,
     var emailVerified: Boolean = false,
     var lastLoginIp: String? = null, // todo check in each login
-) {
+) : Serializable {
     constructor() : this("", "", "", "", emptyList(), AuthType.MANUAL) // todo delete
 }

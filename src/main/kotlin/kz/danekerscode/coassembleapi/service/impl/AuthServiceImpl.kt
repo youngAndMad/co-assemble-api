@@ -87,8 +87,21 @@ class AuthServiceImpl(
         return verificationTokenService.findByValueAndUserEmail(token, email)
             .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
             .flatMap { verificationToken ->
-                verificationTokenService.deleteById(verificationToken.id!!) // never do this in production
+                verificationTokenService
+                    .deleteById(verificationToken.id!!) // never do this in production
                     .then(userService.verifyUserEmail(email))
+                    .then(
+                        mailService.sendMailMessage(
+                            SendMailMessageArgs(
+                                receiver = verificationToken.userEmail,
+                                type = MailMessageType.GREETING,
+                                data = mapOf(
+                                    "receiverEmail" to verificationToken.userEmail,
+                                    "domain" to coAssembleProperties.domain
+                                )
+                            )
+                        )
+                    )
             }
     }
 

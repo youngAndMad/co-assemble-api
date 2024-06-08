@@ -39,7 +39,7 @@
     <p><a href="${link}" class="button">Verify Email</a></p>
     <p>If the button above doesn't work, please copy and paste the following URL into your web browser:</p>
     <p><a href="${link}">${link}</a></p>
-    <p>This verification link will expire in ${verificationTokenTtl}.</p>
+    <p>This verification link will expire in ${verificationTokenTtl} minutes.</p>
     <p>Thank you for joining us!</p>
     <p>Best regards,</p>
     <p>The Coassemble Team</p>
