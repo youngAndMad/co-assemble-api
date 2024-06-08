@@ -25,14 +25,14 @@ class UserServiceImpl(
         return userRepository.existsByEmailAndProvider(username, provider)
     }
 
-    override fun save(user: User): Mono<Void> {
-        return userRepository.save(user).then()
+    override fun save(user: User): Mono<User> {
+        return userRepository.save(user)
     }
 
     override fun createUser(
         registerRequest: RegistrationRequest,
         hashPassword: String
-    ): Mono<Void> {
+    ): Mono<User> {
         val user = User()
         user.email = registerRequest.email
         user.username = registerRequest.username

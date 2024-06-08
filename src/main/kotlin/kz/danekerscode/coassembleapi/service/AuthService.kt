@@ -2,17 +2,18 @@ package kz.danekerscode.coassembleapi.service
 
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
+import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
 /**
  *  Service for authentication
-* */
+ * */
 interface AuthService {
 
     /**
      * Login user
-    * */
-    fun login(loginRequest: LoginRequest): Mono<Void>
+     * */
+    fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<Void>
 
     fun register(registerRequest: RegistrationRequest): Mono<Void>
 }

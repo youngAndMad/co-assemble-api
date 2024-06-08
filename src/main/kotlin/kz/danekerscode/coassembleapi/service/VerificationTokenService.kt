@@ -9,7 +9,7 @@ interface VerificationTokenService {
 
     fun findByValueAndUserEmail(value: String, userEmail: String): Mono<VerificationToken?>
 
-    fun save(verificationToken: VerificationToken): Mono<VerificationToken>
-
     fun cascadeForUser(userEmail: String): Mono<Void>
+
+    fun generateForUser(userEmail: String): Mono<VerificationToken>
 }

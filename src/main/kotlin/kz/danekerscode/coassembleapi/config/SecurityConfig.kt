@@ -16,7 +16,14 @@ import org.springframework.security.web.server.authentication.HttpStatusServerEn
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
 
-private val PERMITTED_URLS = arrayOf("/api/v1/auth/**", "/oauth2/**")
+private val PERMITTED_URLS = arrayOf(
+    "/error",
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/api/v1/auth/**",
+    "/oauth2/**",
+    "/swagger-ui.html"
+)
 
 @Configuration
 @EnableWebFluxSecurity

@@ -12,11 +12,11 @@ interface UserService {
         provider: AuthType
     ): Mono<Boolean>
 
-    fun save(user: User): Mono<Void>
+    fun save(user: User): Mono<User>
 
     fun createUser(
         registerRequest: RegistrationRequest,
         hashPassword: String
-    ): Mono<Void>
+    ): Mono<User>
 
 }

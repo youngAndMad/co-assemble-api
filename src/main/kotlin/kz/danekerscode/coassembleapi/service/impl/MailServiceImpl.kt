@@ -41,7 +41,7 @@ class MailServiceImpl(
 
                 helper.setText(html, true)
                 helper.setTo(sendMailMessageArgs.receiver)
-                helper.setFrom("") // todo set sender
+                helper.setFrom("kkraken2005@gmail.com") // todo set sender
                 helper.setSubject(sendMailMessageArgs.type.subject)
 
                 msg
