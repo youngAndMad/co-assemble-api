@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.model
+package kz.danekerscode.coassembleapi.model.enums
 
 enum class SecurityRole {
     ROLE_USER,
