@@ -33,6 +33,12 @@ spring:
     date-format: 'yyyy-MM-dd HH:mm:ss'
   application:
     name: co-assemble-api
+
+coassemble:
+  domain: ${COASSEMBLE_DOMAIN:http://localhost:${server.port}}
+  verification-token-ttl: 3m
+
+
 logging:
   level:
     org.springframework:

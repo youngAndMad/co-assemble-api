@@ -1,6 +1,7 @@
 package kz.danekerscode.coassembleapi.service.impl
 
 import freemarker.template.Configuration
+import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.repository.UserRepository
@@ -26,5 +27,17 @@ class UserServiceImpl(
 
     override fun save(user: User): Mono<Void> {
         return userRepository.save(user).then()
+    }
+
+    override fun createUser(
+        registerRequest: RegistrationRequest,
+        hashPassword: String
+    ): Mono<Void> {
+        val user = User()
+        user.email = registerRequest.email
+        user.username = registerRequest.username
+        user.password = hashPassword
+
+        return this.save(user)
     }
 }

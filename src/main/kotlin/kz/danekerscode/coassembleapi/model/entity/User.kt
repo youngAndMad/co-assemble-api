@@ -11,7 +11,8 @@ class User(
     var email: String,
     var password: String,
     var roles: List<SecurityRole>,
-    var provider: AuthType
+    var provider: AuthType,
+    var lastLoginIp: String? = null, // todo check in each login
 ) {
     constructor() : this("", "", "", "", emptyList(), AuthType.MANUAL) // todo delete
 }
