@@ -22,6 +22,8 @@ class CoAssembleUserDetailsService(
         return Mono.justOrEmpty(username)
             .switchIfEmpty(Mono.error(AuthProcessingException("Username is required.", HttpStatus.BAD_REQUEST)))
             .flatMap { userRepository.findByEmail(it) }
+            .filter { it.emailVerified }
+            .switchIfEmpty(Mono.error(AuthProcessingException("Email not verified", HttpStatus.BAD_REQUEST)))
             .map { CoAssembleUserDetails(it) }
     }
 

@@ -83,9 +83,19 @@ class AuthServiceImpl(
             .then()
     }
 
+    override fun verifyEmail(token: String, email: String): Mono<Void> {
+        return verificationTokenService.findByValueAndUserEmail(token, email)
+            .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
+            .flatMap { verificationToken ->
+                verificationTokenService.deleteById(verificationToken.id!!) // never do this in production
+                    .then(userService.verifyUserEmail(email))
+            }
+    }
+
+
     private fun constructMailVerificationLink(
         verificationToken: String,
         email: String
     ): String =
-        "${coAssembleProperties.domain}/api/v1/auth/confirm-email/${email}?token=$verificationToken"
+        "${coAssembleProperties.domain}/api/v1/auth/verify-email/${email}?token=$verificationToken"
 }

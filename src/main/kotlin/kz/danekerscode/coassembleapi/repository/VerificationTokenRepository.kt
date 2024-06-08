@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono
 @Repository
 interface VerificationTokenRepository : ReactiveMongoRepository<VerificationToken, String> {
 
-    fun findByValueAndUserEmail(value: String, userEmail: String): Mono<VerificationToken?>
+    fun findByValueAndUserEmail(value: String, userEmail: String): Mono<VerificationToken>
 
     fun deleteAllByUserEmail(userEmail: String): Mono<Void>
 }

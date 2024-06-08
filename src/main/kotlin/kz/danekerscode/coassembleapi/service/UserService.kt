@@ -19,4 +19,6 @@ interface UserService {
         hashPassword: String
     ): Mono<User>
 
+    fun verifyUserEmail(email: String): Mono<Void>
+
 }

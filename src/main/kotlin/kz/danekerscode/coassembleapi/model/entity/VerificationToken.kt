@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 @Document
 class VerificationToken(
     val id: String? = null,
-    val value: String,
+    var value: String,
     val createdDate: LocalDateTime,
     private val expireDate: LocalDateTime,
     val userEmail: String

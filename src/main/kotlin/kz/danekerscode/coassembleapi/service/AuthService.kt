@@ -16,4 +16,6 @@ interface AuthService {
     fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<Void>
 
     fun register(registerRequest: RegistrationRequest): Mono<Void>
+
+    fun verifyEmail(token: String, email: String): Mono<Void>
 }

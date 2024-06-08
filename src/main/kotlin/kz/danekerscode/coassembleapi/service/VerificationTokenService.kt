@@ -7,9 +7,10 @@ interface VerificationTokenService {
 
     fun deleteById(id: String): Mono<Void>
 
-    fun findByValueAndUserEmail(value: String, userEmail: String): Mono<VerificationToken?>
+    fun findByValueAndUserEmail(value: String, userEmail: String): Mono<VerificationToken>
 
     fun cascadeForUser(userEmail: String): Mono<Void>
 
     fun generateForUser(userEmail: String): Mono<VerificationToken>
+
 }

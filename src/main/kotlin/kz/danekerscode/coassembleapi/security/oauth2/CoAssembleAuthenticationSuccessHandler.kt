@@ -61,6 +61,7 @@ class CoAssembleAuthenticationSuccessHandler(
                                         user.provider = provider
                                         user.roles = mutableListOf(SecurityRole.ROLE_USER)
                                         user.username = username
+                                        user.emailVerified = true
                                         userService.save(user).subscribe()
 
                                     } else {

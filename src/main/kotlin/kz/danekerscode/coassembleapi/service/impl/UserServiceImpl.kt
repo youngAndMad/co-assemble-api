@@ -1,6 +1,5 @@
 package kz.danekerscode.coassembleapi.service.impl
 
-import freemarker.template.Configuration
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
@@ -10,6 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.nio.file.attribute.UserPrincipalNotFoundException
 
 @Service
 class UserServiceImpl(
@@ -39,5 +39,20 @@ class UserServiceImpl(
         user.password = hashPassword
 
         return this.save(user)
+    }
+
+    override fun verifyUserEmail(email: String): Mono<Void> {
+        return userRepository.findByEmail(email)
+            .switchIfEmpty(Mono.error(UserPrincipalNotFoundException("User not found for email: $email")))
+            .flatMap { user ->
+                if (user.emailVerified) {
+                    // Email already verified, no need to update
+                    Mono.empty()
+                } else {
+                    // Update email verification status
+                    user.emailVerified = true
+                    userRepository.save(user).then()
+                }
+            }
     }
 }

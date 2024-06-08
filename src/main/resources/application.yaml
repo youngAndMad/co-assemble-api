@@ -41,6 +41,9 @@ coassemble:
 
 logging:
   level:
+    kz.danekerscode.coassembleapi: debug
     org.springframework:
       web: debug
       security: debug
+server:
+  port: 8080

@@ -6,7 +6,6 @@ import kz.danekerscode.coassembleapi.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ServerWebExchange
-import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -15,12 +14,17 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest, exchange: ServerWebExchange):
-            Mono<Void> = authService.login(loginRequest, exchange)
+    fun login(@RequestBody loginRequest: LoginRequest, exchange: ServerWebExchange) =
+        authService.login(loginRequest, exchange)
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody registerRequest: RegistrationRequest):
-            Mono<Void> = authService.register(registerRequest)
+    fun register(@RequestBody registerRequest: RegistrationRequest) = authService.register(registerRequest)
+
+    @GetMapping("/verify-email/{email}")
+    fun verifyEmail(
+        @RequestParam token: String,
+        @PathVariable email: String
+    ) = authService.verifyEmail(token, email)
 
 }

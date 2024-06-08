@@ -12,4 +12,5 @@ interface UserRepository : ReactiveMongoRepository<User, String> {
     fun findByEmail(email: String): Mono<User>
 
     fun existsByEmailAndProvider(email: String, provider: AuthType): Mono<Boolean>
+
 }
