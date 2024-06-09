@@ -2,6 +2,7 @@ plugins {
 	id("org.springframework.boot") version "3.3.0"
 	id("io.spring.dependency-management") version "1.1.5"
 	kotlin("jvm") version "1.9.24"
+	kotlin("kapt") version "1.9.10"
 	kotlin("plugin.spring") version "1.9.24"
 }
 
@@ -28,6 +29,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("org.mapstruct:mapstruct:1.6.0.Beta1")
+	kapt("org.mapstruct:mapstruct-processor:1.6.0.Beta1")
+
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -39,6 +43,16 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
+kapt {
+	arguments {
+		// Set Mapstruct Configuration options here
+		// https://kotlinlang.org/docs/reference/kapt.html#annotation-processor-arguments
+		// https://mapstruct.org/documentation/stable/reference/html/#configuration-options
+		 arg("mapstruct.defaultComponentModel", "spring")
+	}
+}
+
 
 kotlin {
 	compilerOptions {

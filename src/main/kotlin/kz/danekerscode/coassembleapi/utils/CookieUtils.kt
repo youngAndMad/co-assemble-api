@@ -45,16 +45,13 @@ object CookieUtils {
         )
     }
 
-    fun serialize(obj: Any): String {
-        return Base64.getUrlEncoder()
-            .encodeToString(SerializationUtils.serialize(obj))
-    }
+    fun serialize(obj: Any): String = Base64.getUrlEncoder()
+        .encodeToString(SerializationUtils.serialize(obj))
 
-    fun <T> deserialize(cookie: HttpCookie, cls: Class<T>): T {
-        return cls.cast(
+    fun <T> deserialize(cookie: HttpCookie, cls: Class<T>): T =
+        cls.cast(
             SerializationUtils.deserialize(
                 Base64.getUrlDecoder().decode(cookie.value)
             )
         )
-    }
 }

@@ -3,8 +3,11 @@ package kz.danekerscode.coassembleapi.controller
 import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
+import kz.danekerscode.coassembleapi.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.service.AuthService
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ServerWebExchange
 
@@ -37,4 +40,7 @@ class AuthController(
     fun forgotPasswordConfirm(
         @RequestBody forgotPasswordConfirmation: ForgotPasswordConfirmation
     ) = authService.forgotPasswordConfirm(forgotPasswordConfirmation)
+
+    @GetMapping("/me")
+    fun me(authentication: Authentication) = authService.me(authentication)
 }

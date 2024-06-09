@@ -14,6 +14,7 @@ class User(
     var roles: List<SecurityRole>,
     var provider: AuthType,
     var emailVerified: Boolean = false,
+    val techStack: List<TechStackItem> = emptyList(),
     var lastLoginIp: String? = null, // todo check in each login
 ) : Serializable {
     constructor() : this("", "", "", "", emptyList(), AuthType.MANUAL) // todo delete

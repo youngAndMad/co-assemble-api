@@ -36,7 +36,11 @@ class FileServiceImpl(
         }
 
     override fun deleteFile(id: String): Mono<Void> {
-        TODO("Not yet implemented")
+        val query = query(where("_id").`is`(id))
+        return gridFsOperations
+            .findOne(query)
+            .switchIfEmpty(Mono.error(RuntimeException("File not found"))) // TODO: extend exception
+            .flatMap { gridFsOperations.delete(query) }
     }
 
     override fun downloadFile(id: String): Mono<ReactiveGridFsResource> =

@@ -1,6 +1,8 @@
 package kz.danekerscode.coassembleapi.service.impl
 
+import kz.danekerscode.coassembleapi.core.mapper.UserMapper
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
+import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.repository.UserRepository
@@ -13,7 +15,8 @@ import java.nio.file.attribute.UserPrincipalNotFoundException
 
 @Service
 class UserServiceImpl(
-    private var userRepository: UserRepository
+    private var userRepository: UserRepository,
+    private var userMapper: UserMapper
 ) : UserService {
 
     private var log: Logger = LoggerFactory.getLogger(this.javaClass::class.java)
@@ -62,4 +65,8 @@ class UserServiceImpl(
                 user.password = updatedPassword
                 userRepository.save(user).then()
             }
+
+    override fun me(email: String): Mono<UserDto> = userRepository
+        .findByEmail(email)
+        .map { userMapper.toMeResponse(it) }
 }

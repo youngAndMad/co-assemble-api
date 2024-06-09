@@ -48,29 +48,27 @@ class CoAssembleAuthenticationSuccessHandler(
                     if (provider != null) {
                         userService.existsByEmailAndProvider(userEmail, provider)
                             .subscribe { userAlreadyExists ->
-                                run {
-                                    if (!userAlreadyExists) {
-                                        log.info(
-                                            "User with email: {} and provider: {} does not exist. Creating new user",
-                                            userEmail,
-                                            provider
-                                        )
+                                if (!userAlreadyExists) {
+                                    log.info(
+                                        "User with email: {} and provider: {} does not exist. Creating new user",
+                                        userEmail,
+                                        provider
+                                    )
 
-                                        val user = User()
-                                        user.email = userEmail
-                                        user.provider = provider
-                                        user.roles = mutableListOf(SecurityRole.ROLE_USER)
-                                        user.username = username
-                                        user.emailVerified = true
-                                        userService.save(user).subscribe()
+                                    val user = User()
+                                    user.email = userEmail
+                                    user.provider = provider
+                                    user.roles = mutableListOf(SecurityRole.ROLE_USER)
+                                    user.username = userEmail
+                                    user.emailVerified = true
+                                    userService.save(user).subscribe()
 
-                                    } else {
-                                        log.info(
-                                            "User with email: {} and provider: {} already exists",
-                                            userEmail,
-                                            provider
-                                        )
-                                    }
+                                } else {
+                                    log.info(
+                                        "User with email: {} and provider: {} already exists",
+                                        userEmail,
+                                        provider
+                                    )
                                 }
                             }
                     }
