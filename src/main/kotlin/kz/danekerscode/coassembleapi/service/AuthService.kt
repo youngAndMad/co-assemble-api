@@ -23,4 +23,5 @@ interface AuthService {
     fun forgotPasswordRequest(email: String): Mono<Void>
 
     fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void>
+
 }

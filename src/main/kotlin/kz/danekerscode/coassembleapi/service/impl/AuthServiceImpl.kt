@@ -35,21 +35,22 @@ class AuthServiceImpl(
 ) : AuthService {
 
     override fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<Void> {
-        val usernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(
-            loginRequest.email,
-            loginRequest.password
-        )
+        val authToken = UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
 
-        return authenticationManager.authenticate(usernamePasswordAuthenticationToken)
-            .flatMap { authentication ->
-                val securityContext = SecurityContextHolder.createEmptyContext()
-                securityContext.authentication = authentication
+        return authenticationManager.authenticate(authToken)
+            .flatMap { auth ->
+                val securityContext = SecurityContextHolder.createEmptyContext().apply { authentication = auth }
                 securityContextRepository.save(exchange, securityContext)
             }
-            .then()
-            .onErrorResume { error ->
-                Mono.error(AuthProcessingException("Login failed: ${error.message}", HttpStatus.UNAUTHORIZED))
+            .onErrorResume {
+                Mono.error(
+                    AuthProcessingException(
+                        "Login failed: ${it.message}",
+                        HttpStatus.UNAUTHORIZED
+                    )
+                )
             }
+            .then()
     }
 
     override fun register(registerRequest: RegistrationRequest): Mono<Void> {
@@ -63,13 +64,18 @@ class AuthServiceImpl(
                         )
                     )
                 } else {
-                    userService.createUser(registerRequest, passwordEncoder.encode(registerRequest.password))
+                    createUserAndSendVerification(registerRequest)
                 }
             }
+            .then()
+    }
+
+    private fun createUserAndSendVerification(registerRequest: RegistrationRequest): Mono<Void> {
+        return userService.createUser(registerRequest, passwordEncoder.encode(registerRequest.password))
             .flatMap { user ->
                 verificationTokenService.generateForUser(registerRequest.email, VerificationTokenType.MAIL_VERIFICATION)
                     .flatMap { token ->
-                        val sendMailMessageArgs = SendMailMessageArgs(
+                        val args = SendMailMessageArgs(
                             registerRequest.email,
                             MailMessageType.MAIL_CONFIRMATION,
                             mapOf(
@@ -79,32 +85,28 @@ class AuthServiceImpl(
                                 "link" to constructMailVerificationLink(token.value, user.email)
                             )
                         )
-                        mailService.sendMailMessage(sendMailMessageArgs)
+                        mailService.sendMailMessage(args)
                     }
             }
-            .then()
     }
 
     override fun verifyEmail(token: String, email: String): Mono<Void> {
         return verificationTokenService.findByValueAndUserEmail(token, email, VerificationTokenType.MAIL_VERIFICATION)
             .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
             .flatMap { verificationToken ->
-                verificationTokenService
-                    .deleteById(verificationToken.id!!) // never do this in production
+                verificationTokenService.deleteById(verificationToken.id!!)
                     .then(userService.verifyUserEmail(email))
-                    .then(
-                        mailService.sendMailMessage(
-                            SendMailMessageArgs(
-                                receiver = verificationToken.userEmail,
-                                type = MailMessageType.GREETING,
-                                data = mapOf(
-                                    "receiverEmail" to verificationToken.userEmail,
-                                    "domain" to coAssembleProperties.domain
-                                )
-                            )
-                        )
-                    )
+                    .then(sendGreetingEmail(verificationToken.userEmail))
             }
+    }
+
+    private fun sendGreetingEmail(email: String): Mono<Void> {
+        val args = SendMailMessageArgs(
+            receiver = email,
+            type = MailMessageType.GREETING,
+            data = mapOf("receiverEmail" to email, "domain" to coAssembleProperties.domain)
+        )
+        return mailService.sendMailMessage(args)
     }
 
     override fun forgotPasswordRequest(email: String): Mono<Void> {
@@ -121,7 +123,7 @@ class AuthServiceImpl(
             .flatMap {
                 verificationTokenService.generateForUser(email, VerificationTokenType.FORGOT_PASSWORD)
                     .flatMap { token ->
-                        val sendMailMessageArgs = SendMailMessageArgs(
+                        val args = SendMailMessageArgs(
                             email,
                             MailMessageType.FORGOT_PASSWORD,
                             mapOf(
@@ -131,47 +133,40 @@ class AuthServiceImpl(
                                 "link" to "${coAssembleProperties.mailLinkPrefix}/forgot-password/confirm/$email?token=${token.value}"
                             )
                         )
-                        mailService.sendMailMessage(sendMailMessageArgs)
+                        mailService.sendMailMessage(args)
                     }
             }
             .then()
     }
 
-    override fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void> {
-        return verificationTokenService.findByValueAndUserEmail(
-            forgotPasswordConfirmation.token,
-            forgotPasswordConfirmation.email,
-            VerificationTokenType.FORGOT_PASSWORD
+    override fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void> =
+        verificationTokenService.findByValueAndUserEmail(
+            forgotPasswordConfirmation.token, forgotPasswordConfirmation.email, VerificationTokenType.FORGOT_PASSWORD
         )
             .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
             .flatMap { verificationToken ->
                 verificationTokenService
-                    .deleteById(verificationToken.id!!) // never do this in production
+                    .deleteById(verificationToken.id!!)
                     .then(
                         userService.updatePassword(
                             forgotPasswordConfirmation.email,
                             passwordEncoder.encode(forgotPasswordConfirmation.password)
                         )
                     )
-                    .then(
-                        mailService.sendMailMessage(
-                            SendMailMessageArgs(
-                                receiver = verificationToken.userEmail,
-                                type = MailMessageType.PASSWORD_CHANGED,
-                                data = mapOf(
-                                    "receiverEmail" to verificationToken.userEmail,
-                                    "loginPageLink" to "${coAssembleProperties.mailLinkPrefix}/login"
-                                )
-                            )
-                        )
-                    )
+                    .then(sendPasswordChangedEmail(verificationToken.userEmail))
             }
 
+    private fun sendPasswordChangedEmail(email: String): Mono<Void> {
+        val args = SendMailMessageArgs(
+            receiver = email,
+            type = MailMessageType.PASSWORD_CHANGED,
+            data = mapOf("receiverEmail" to email, "loginPageLink" to "${coAssembleProperties.mailLinkPrefix}/login")
+        )
+        return mailService.sendMailMessage(args)
     }
 
-    private fun constructMailVerificationLink(
-        verificationToken: String,
-        email: String
-    ): String =
-        "${coAssembleProperties.mailLinkPrefix}/verify-email/${email}?token=$verificationToken"
+    private fun constructMailVerificationLink(verificationToken: String, email: String): String {
+        return "${coAssembleProperties.mailLinkPrefix}/verify-email/$email?token=$verificationToken"
+    }
 }
+

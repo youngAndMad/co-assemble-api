@@ -22,7 +22,9 @@ private val PERMITTED_URLS = arrayOf(
     "/v3/api-docs/**",
     "/api/v1/auth/**",
     "/oauth2/**",
-    "/swagger-ui.html"
+    "/swagger-ui.html",
+    "/test1",// todo delete
+    "/test2"// todo delete
 )
 
 @Configuration

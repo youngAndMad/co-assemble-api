@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.controller
 
+import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.service.AuthService
@@ -34,7 +35,6 @@ class AuthController(
 
     @PostMapping("/forgot-password/confirm/{email}")
     fun forgotPasswordConfirm(
-        @RequestParam token: String,
-        @PathVariable email: String
-    ) = authService.forgotPasswordConfirm(token, email)
+        @RequestBody forgotPasswordConfirmation: ForgotPasswordConfirmation
+    ) = authService.forgotPasswordConfirm(forgotPasswordConfirmation)
 }
