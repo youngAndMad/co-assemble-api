@@ -1,7 +1,7 @@
 package kz.danekerscode.coassembleapi.security
 
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
-import kz.danekerscode.coassembleapi.repository.UserRepository
+import kz.danekerscode.coassembleapi.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono
 
 @Service
 class CoAssembleUserDetailsService(
-    val userRepository: UserRepository,
+    val userService: UserService,
 ) : ReactiveUserDetailsService {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -21,7 +21,7 @@ class CoAssembleUserDetailsService(
 
         return Mono.justOrEmpty(username)
             .switchIfEmpty(Mono.error(AuthProcessingException("Username is required.", HttpStatus.BAD_REQUEST)))
-            .flatMap { userRepository.findByEmail(it) }
+            .flatMap { userService.findByEmail(it) }
             .filter { it.emailVerified }
             .switchIfEmpty(Mono.error(AuthProcessingException("Email not verified", HttpStatus.BAD_REQUEST)))
             .map { CoAssembleUserDetails(it) }

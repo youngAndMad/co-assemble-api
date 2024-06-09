@@ -2,6 +2,7 @@ package kz.danekerscode.coassembleapi.service.impl
 
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.model.entity.VerificationToken
+import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
 import kz.danekerscode.coassembleapi.repository.VerificationTokenRepository
 import kz.danekerscode.coassembleapi.service.VerificationTokenService
 import kz.danekerscode.coassembleapi.utils.Base64Utils
@@ -20,19 +21,25 @@ class VerificationTokenServiceImpl(
         return verificationTokenRepository.deleteById(id)
     }
 
-    override fun findByValueAndUserEmail(value: String, userEmail: String): Mono<VerificationToken> {
-        return verificationTokenRepository.findByValueAndUserEmail(Base64Utils.decodeToString(value), userEmail)
+    override fun findByValueAndUserEmail(
+        value: String,
+        userEmail: String,
+        type: VerificationTokenType
+    ): Mono<VerificationToken> {
+        return verificationTokenRepository
+            .findByValueAndUserEmailAndType(Base64Utils.decodeToString(value), userEmail, type)
     }
 
     override fun cascadeForUser(userEmail: String): Mono<Void> {
         return verificationTokenRepository.deleteAllByUserEmail(userEmail)
     }
 
-    override fun generateForUser(userEmail: String): Mono<VerificationToken> {
+    override fun generateForUser(userEmail: String, type: VerificationTokenType): Mono<VerificationToken> {
 
         val verificationToken = VerificationToken(
             value = generateToken(),
             userEmail = userEmail,
+            type = type,
             createdDate = LocalDateTime.now(),
             expireDate = LocalDateTime.now().plus(coAssembleProperties.verificationTokenTtl)
         )

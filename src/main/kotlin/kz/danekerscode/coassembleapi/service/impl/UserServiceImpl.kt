@@ -25,9 +25,7 @@ class UserServiceImpl(
         return userRepository.existsByEmailAndProvider(username, provider)
     }
 
-    override fun save(user: User): Mono<User> {
-        return userRepository.save(user)
-    }
+    override fun save(user: User): Mono<User> = userRepository.save(user)
 
     override fun createUser(
         registerRequest: RegistrationRequest,
@@ -41,8 +39,8 @@ class UserServiceImpl(
         return this.save(user)
     }
 
-    override fun verifyUserEmail(email: String): Mono<Void> {
-        return userRepository.findByEmail(email)
+    override fun verifyUserEmail(email: String): Mono<Void> =
+        userRepository.findByEmail(email)
             .switchIfEmpty(Mono.error(UserPrincipalNotFoundException("User not found for email: $email")))
             .flatMap { user ->
                 if (user.emailVerified) {
@@ -54,5 +52,14 @@ class UserServiceImpl(
                     userRepository.save(user).then()
                 }
             }
-    }
+
+    override fun findByEmail(email: String): Mono<User> = userRepository.findByEmail(email)
+
+    override fun updatePassword(email: String, updatedPassword: String): Mono<Void> =
+        userRepository.findByEmail(email)
+            .switchIfEmpty(Mono.error(UserPrincipalNotFoundException("User not found for email: $email")))
+            .flatMap { user ->
+                user.password = updatedPassword
+                userRepository.save(user).then()
+            }
 }

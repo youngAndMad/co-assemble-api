@@ -21,4 +21,7 @@ interface UserService {
 
     fun verifyUserEmail(email: String): Mono<Void>
 
+    fun findByEmail(email: String): Mono<User>
+
+    fun updatePassword(email: String, updatedPassword: String): Mono<Void>
 }

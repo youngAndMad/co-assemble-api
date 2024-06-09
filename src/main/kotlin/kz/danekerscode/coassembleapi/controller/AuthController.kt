@@ -27,4 +27,14 @@ class AuthController(
         @PathVariable email: String
     ) = authService.verifyEmail(token, email)
 
+    @PostMapping("/forgot-password/request/{email}")
+    fun forgotPasswordRequest(
+        @PathVariable email: String
+    ) = authService.forgotPasswordRequest(email)
+
+    @PostMapping("/forgot-password/confirm/{email}")
+    fun forgotPasswordConfirm(
+        @RequestParam token: String,
+        @PathVariable email: String
+    ) = authService.forgotPasswordConfirm(token, email)
 }

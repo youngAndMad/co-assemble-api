@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.service
 
+import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import org.springframework.web.server.ServerWebExchange
@@ -18,4 +19,8 @@ interface AuthService {
     fun register(registerRequest: RegistrationRequest): Mono<Void>
 
     fun verifyEmail(token: String, email: String): Mono<Void>
+
+    fun forgotPasswordRequest(email: String): Mono<Void>
+
+    fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void>
 }

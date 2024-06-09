@@ -1,10 +1,12 @@
 package kz.danekerscode.coassembleapi.service.impl
 
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
+import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.model.enums.MailMessageType
+import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
 import kz.danekerscode.coassembleapi.model.payload.SendMailMessageArgs
 import kz.danekerscode.coassembleapi.service.AuthService
@@ -65,7 +67,7 @@ class AuthServiceImpl(
                 }
             }
             .flatMap { user ->
-                verificationTokenService.generateForUser(registerRequest.email)
+                verificationTokenService.generateForUser(registerRequest.email, VerificationTokenType.MAIL_VERIFICATION)
                     .flatMap { token ->
                         val sendMailMessageArgs = SendMailMessageArgs(
                             registerRequest.email,
@@ -84,7 +86,7 @@ class AuthServiceImpl(
     }
 
     override fun verifyEmail(token: String, email: String): Mono<Void> {
-        return verificationTokenService.findByValueAndUserEmail(token, email)
+        return verificationTokenService.findByValueAndUserEmail(token, email, VerificationTokenType.MAIL_VERIFICATION)
             .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
             .flatMap { verificationToken ->
                 verificationTokenService
@@ -105,10 +107,71 @@ class AuthServiceImpl(
             }
     }
 
+    override fun forgotPasswordRequest(email: String): Mono<Void> {
+        return userService.findByEmail(email)
+            .filter { it.provider == AuthType.MANUAL }
+            .switchIfEmpty(
+                Mono.error(
+                    AuthProcessingException(
+                        "User with email $email not found",
+                        HttpStatus.NOT_FOUND
+                    )
+                )
+            )
+            .flatMap {
+                verificationTokenService.generateForUser(email, VerificationTokenType.FORGOT_PASSWORD)
+                    .flatMap { token ->
+                        val sendMailMessageArgs = SendMailMessageArgs(
+                            email,
+                            MailMessageType.FORGOT_PASSWORD,
+                            mapOf(
+                                "receiverEmail" to email,
+                                "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
+                                    .toString(),
+                                "link" to "${coAssembleProperties.mailLinkPrefix}/forgot-password/confirm/$email?token=${token.value}"
+                            )
+                        )
+                        mailService.sendMailMessage(sendMailMessageArgs)
+                    }
+            }
+            .then()
+    }
+
+    override fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void> {
+        return verificationTokenService.findByValueAndUserEmail(
+            forgotPasswordConfirmation.token,
+            forgotPasswordConfirmation.email,
+            VerificationTokenType.FORGOT_PASSWORD
+        )
+            .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
+            .flatMap { verificationToken ->
+                verificationTokenService
+                    .deleteById(verificationToken.id!!) // never do this in production
+                    .then(
+                        userService.updatePassword(
+                            forgotPasswordConfirmation.email,
+                            passwordEncoder.encode(forgotPasswordConfirmation.password)
+                        )
+                    )
+                    .then(
+                        mailService.sendMailMessage(
+                            SendMailMessageArgs(
+                                receiver = verificationToken.userEmail,
+                                type = MailMessageType.PASSWORD_CHANGED,
+                                data = mapOf(
+                                    "receiverEmail" to verificationToken.userEmail,
+                                    "loginPageLink" to "${coAssembleProperties.mailLinkPrefix}/login"
+                                )
+                            )
+                        )
+                    )
+            }
+
+    }
 
     private fun constructMailVerificationLink(
         verificationToken: String,
         email: String
     ): String =
-        "${coAssembleProperties.domain}/api/v1/auth/verify-email/${email}?token=$verificationToken"
+        "${coAssembleProperties.mailLinkPrefix}/verify-email/${email}?token=$verificationToken"
 }
