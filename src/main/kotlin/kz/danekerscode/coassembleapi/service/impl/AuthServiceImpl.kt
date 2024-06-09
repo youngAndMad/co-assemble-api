@@ -96,6 +96,8 @@ class AuthServiceImpl(
     override fun verifyEmail(token: String, email: String): Mono<Void> {
         return verificationTokenService.findByValueAndUserEmail(token, email, VerificationTokenType.MAIL_VERIFICATION)
             .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
+            .filter { !it.isExpired() }
+            .switchIfEmpty(Mono.error(AuthProcessingException("Verification token expired", HttpStatus.BAD_REQUEST)))
             .flatMap { verificationToken ->
                 verificationTokenService.deleteById(verificationToken.id!!)
                     .then(userService.verifyUserEmail(email))

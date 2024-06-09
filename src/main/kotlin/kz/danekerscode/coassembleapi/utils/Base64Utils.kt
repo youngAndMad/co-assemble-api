@@ -7,20 +7,10 @@ import java.util.*
  * */
 object Base64Utils {
 
-    /**
-     * Encode string to base64
-     * */
-    fun encodeToString(input: String): String {
-        val bytes = input.toByteArray()
-        return Base64.getEncoder().encodeToString(bytes)
-    }
+    fun encodeToString(input: String): String = encodeToString(input.toByteArray())
 
-    /**
-     * Decode base64 to string
-     * */
-    fun decodeToString(input: String): String {
-        val bytes = Base64.getDecoder().decode(input)
-        return String(bytes)
-    }
+    fun encodeToString(input: ByteArray?): String = Base64.getEncoder().encodeToString(input)
+
+    fun decodeToString(input: String): String = String(Base64.getDecoder().decode(input))
 
 }
