@@ -1,5 +1,7 @@
 package kz.danekerscode.coassembleapi.config
 
+import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
+import kz.danekerscode.coassembleapi.security.CoAssembleAuthFilter
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleAuthenticationSuccessHandler
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembledServerLogoutSuccessHandler
 import org.springframework.boot.autoconfigure.security.reactive.PathRequest
@@ -8,6 +10,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -15,17 +18,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
-
-private val PERMITTED_URLS = arrayOf(
-    "/error",
-    "/swagger-ui/**",
-    "/v3/api-docs/**",
-    "/api/v1/auth/**",
-    "/oauth2/**",
-    "/swagger-ui.html",
-    "/test1",// todo delete
-    "/test2"// todo delete
-)
 
 @Configuration
 @EnableWebFluxSecurity
@@ -39,11 +31,19 @@ class SecurityConfig {
         http: ServerHttpSecurity,
         coAssembleAuthenticationProvider: ReactiveAuthenticationManager,
         coAssembledServerLogoutSuccessHandler: CoAssembledServerLogoutSuccessHandler,
-        coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler
+        coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler,
+        coAssembleAuthFilter: CoAssembleAuthFilter
     ): SecurityWebFilterChain =
         http
-            .csrf(ServerHttpSecurity.CsrfSpec::disable)
-            .cors(ServerHttpSecurity.CorsSpec::disable)
+            .headers { headers ->
+                headers.frameOptions { frameOptions ->
+                    frameOptions.disable()
+                }
+            }
+            .csrf { it.disable() }
+            .cors { it.disable() }
+            .httpBasic { it.disable() }
+            .formLogin { it.disable() }
             .exceptionHandling {
                 it.authenticationEntryPoint(HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED))
             }
@@ -56,7 +56,7 @@ class SecurityConfig {
             .authorizeExchange {
                 it
                     .matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                    .pathMatchers(*PERMITTED_URLS).permitAll()
+                    .pathMatchers(*INSECURE_ENDPOINTS).permitAll()
                     .anyExchange().authenticated()
             }
             /*
@@ -74,7 +74,7 @@ class SecurityConfig {
                     .logoutSuccessHandler(coAssembledServerLogoutSuccessHandler)
                     .logoutUrl("/api/v1/auth/logout")
             }
-
+            .addFilterAt(coAssembleAuthFilter, SecurityWebFiltersOrder.LAST)
             .build()
 
     @Bean

@@ -21,7 +21,7 @@ class UserServiceImpl(
     private var passwordEncoder: PasswordEncoder
 ) : UserService {
 
-    private var log: Logger = LoggerFactory.getLogger(this.javaClass::class.java)
+    private var log: Logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun existsByEmailAndProvider(
         username: String, provider: AuthType
@@ -80,7 +80,10 @@ class UserServiceImpl(
                     Mono.empty()
                 } else {
                     val user = userMapper.toAdmin(email, passwordEncoder.encode(password))
-                    userRepository.save(user).then()
+                    userRepository.save(user).flatMap {
+                        log.info("Admin with email {} created successfully", email)
+                        Mono.empty()
+                    }
                 }
 
             }

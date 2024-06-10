@@ -16,7 +16,7 @@ class User(
     var provider: AuthType,
     var emailVerified: Boolean = false,
     @Field("techStack") // MongoDB field name
-    val techStack: List<TechStackItem> = emptyList(),
+    val techStack: List<TechStackItem> = mutableListOf(),
     var lastLoginIp: String? = null, // todo check in each login
 ) : Serializable {
     constructor() : this("", "", "", "", emptyList(), AuthType.MANUAL) // todo delete
