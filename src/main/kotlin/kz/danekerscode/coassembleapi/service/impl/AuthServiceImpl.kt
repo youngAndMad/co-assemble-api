@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
@@ -37,7 +38,7 @@ class AuthServiceImpl(
     private val verificationTokenService: VerificationTokenService
 ) : AuthService {
 
-    override fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<Void> =
+    override fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<UserDto> =
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 loginRequest.email,
@@ -45,8 +46,17 @@ class AuthServiceImpl(
             )
         )
             .flatMap { auth ->
-                val securityContext = SecurityContextHolder.createEmptyContext().apply { authentication = auth }
-                securityContextRepository.save(exchange, securityContext)
+                ReactiveSecurityContextHolder
+                    .getContext().flatMap { context ->
+                        context.authentication = auth
+                        Mono.just(context)
+                    }
+                    .flatMap { securityContext ->
+                        securityContextRepository
+                            .save(exchange, securityContext)
+                            .then(userService.me(loginRequest.email))
+                    }
+
             }
             .onErrorResume {
                 Mono.error(
@@ -93,7 +103,7 @@ class AuthServiceImpl(
                     }
             }
 
-    override fun verifyEmail(token: String, email: String): Mono<Void> {
+    override fun verifyEmail(token: String, email: String): Mono<UserDto> {
         return verificationTokenService.findByValueAndUserEmail(token, email, VerificationTokenType.MAIL_VERIFICATION)
             .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
             .filter { !it.isExpired() }
@@ -102,6 +112,7 @@ class AuthServiceImpl(
                 verificationTokenService.deleteById(verificationToken.id!!)
                     .then(userService.verifyUserEmail(email))
                     .then(sendGreetingEmail(verificationToken.userEmail))
+                    .then(userService.me(email))
             }
     }
 

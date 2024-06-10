@@ -16,11 +16,11 @@ interface AuthService {
     /**
      * Login user
      * */
-    fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<Void>
+    fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<UserDto>
 
     fun register(registerRequest: RegistrationRequest): Mono<Void>
 
-    fun verifyEmail(token: String, email: String): Mono<Void>
+    fun verifyEmail(token: String, email: String): Mono<UserDto>
 
     fun forgotPasswordRequest(email: String): Mono<Void>
 

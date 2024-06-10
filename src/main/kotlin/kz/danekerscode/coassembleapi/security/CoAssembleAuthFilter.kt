@@ -40,14 +40,13 @@ class CoAssembleAuthFilter(
                                 .flatMap { email ->
                                     coAssembleUserDetailService.findByUsername(email)
                                         .flatMap { userDetails ->
-                                            val newAuth = UsernamePasswordAuthenticationToken(
-                                                userDetails,
-                                                null,
-                                                userDetails.authorities
-                                            )
                                             ReactiveSecurityContextHolder
                                                 .getContext().flatMap { context ->
-                                                    context.authentication = newAuth
+                                                    context.authentication = UsernamePasswordAuthenticationToken(
+                                                        userDetails,
+                                                        null,
+                                                        userDetails.authorities
+                                                    )
                                                     Mono.just(context)
                                                 }
                                         }
@@ -57,8 +56,6 @@ class CoAssembleAuthFilter(
                         }
                     }
                     .then()
-
-
             }
 
 
