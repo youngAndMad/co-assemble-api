@@ -17,7 +17,7 @@ interface UserService {
 
     fun createUser(
         registerRequest: RegistrationRequest,
-        hashPassword: String
+        password: String
     ): Mono<User>
 
     fun verifyUserEmail(email: String): Mono<Void>
@@ -27,5 +27,7 @@ interface UserService {
     fun updatePassword(email: String, updatedPassword: String): Mono<Void>
 
     fun me(email: String): Mono<UserDto>
+
+    fun createAdmin(email: String, password: String): Mono<Void>
 
 }

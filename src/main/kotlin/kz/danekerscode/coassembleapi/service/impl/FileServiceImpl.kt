@@ -1,9 +1,7 @@
 package kz.danekerscode.coassembleapi.service.impl
 
 import com.mongodb.BasicDBObject
-import kz.danekerscode.coassembleapi.model.entity.CoAssembleFile
 import kz.danekerscode.coassembleapi.service.FileService
-import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.gridfs.ReactiveGridFsOperations
 import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate
 import org.springframework.http.codec.multipart.FilePart

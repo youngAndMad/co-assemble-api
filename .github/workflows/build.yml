@@ -1,10 +1,10 @@
-name: Build Gradle project
+name: Build
 
 on:
   push:
 
 jobs:
-  build-gradle-project:
+  build-project:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources

@@ -75,7 +75,7 @@ class AuthServiceImpl(
             .then()
 
     private fun createUserAndSendVerification(registerRequest: RegistrationRequest): Mono<Void> =
-        userService.createUser(registerRequest, passwordEncoder.encode(registerRequest.password))
+        userService.createUser(registerRequest, registerRequest.password)
             .flatMap { user ->
                 verificationTokenService.generateForUser(registerRequest.email, VerificationTokenType.MAIL_VERIFICATION)
                     .flatMap { token ->

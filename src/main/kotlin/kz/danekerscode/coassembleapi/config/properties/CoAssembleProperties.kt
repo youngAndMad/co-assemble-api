@@ -7,7 +7,7 @@ import java.time.Duration
 class CoAssembleProperties(
     val domain: String,
     val verificationTokenTtl: Duration,
-    val mailLinkPrefix: String
-) {
-
-}
+    val mailLinkPrefix: String,
+    val adminEmail: String,
+    val adminPassword: String
+)
