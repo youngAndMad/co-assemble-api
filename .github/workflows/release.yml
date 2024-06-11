@@ -1,12 +1,19 @@
-name: Build project
+name: Create release
 
+# Controls when the action will run
+# Option bellow allows you to run the workflow manually
 on:
-  push:
-    branches-ignore:
-      - master
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release new version'
+# Allow GitHub Actions to push changes to the repository
+permissions:
+  contents: write
 
 jobs:
-  build-project:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
@@ -27,11 +34,10 @@ jobs:
 
       - name: Allow permissions to gradlew
         run: chmod +x gradlew
-      - name: Run build
-        run: ./gradlew build
 
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/libs/**/*.jar
+      - name: Setup git config
+        run: |
+          git config user.name {{ secrets.GITHUB_USERNAME }}
+          git config user.email {{ secrets.GITHUB_EMAIL }}
+      - name: Release with Gradle Release Plugin
+        run: ./gradlew release
