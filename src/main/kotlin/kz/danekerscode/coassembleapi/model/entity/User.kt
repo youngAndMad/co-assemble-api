@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import java.io.Serializable
+import java.net.InetSocketAddress
 
 @Document("users")
 class User(
@@ -20,6 +21,6 @@ class User(
     var image: Avatar? = null,
     @Field("techStack") // MongoDB field name
     val techStack: List<TechStackItem> = mutableListOf(),
-    var lastLoginIp: String? = null, // todo check in each login
+    var lastLoginAddress: InetSocketAddress? = null, // todo check in each login
 ) : Serializable {
 }

@@ -27,6 +27,7 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import java.net.InetSocketAddress
 
 @Service
 class AuthServiceImpl(
@@ -48,6 +49,30 @@ class AuthServiceImpl(
                 loginRequest.password
             )
         )
+//            .filter { todo fix and add this feature
+//                val currentUser = it.principal as CoAssembleUserDetails
+//                val user = currentUser.user
+//
+//                val lastLoginAddress: InetSocketAddress? = user.lastLoginAddress
+//                if (lastLoginAddress == null) {
+//                    it.isAuthenticated
+//                }
+//
+//                val remoteAddress = exchange.request.remoteAddress
+//
+//                if (lastLoginAddress != remoteAddress) {
+//                    return Mono.error(
+//                        AuthProcessingException(
+//                            "Last login address is different from current. Will send verification email.",
+//                            HttpStatus.UNAUTHORIZED
+//                        )
+//
+//                    )
+//                }
+//
+//                it.isAuthenticated
+//            }
+
             .flatMap { auth ->
                 val securityContext: SecurityContext = SecurityContextImpl(auth)
                 securityContextRepository
