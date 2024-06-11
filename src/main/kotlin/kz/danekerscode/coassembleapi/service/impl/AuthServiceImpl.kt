@@ -15,12 +15,13 @@ import kz.danekerscode.coassembleapi.service.AuthService
 import kz.danekerscode.coassembleapi.service.MailService
 import kz.danekerscode.coassembleapi.service.UserService
 import kz.danekerscode.coassembleapi.service.VerificationTokenService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.stereotype.Service
@@ -38,6 +39,8 @@ class AuthServiceImpl(
     private val verificationTokenService: VerificationTokenService
 ) : AuthService {
 
+    private var log = LoggerFactory.getLogger(this::class.java)
+
     override fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<UserDto> =
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
@@ -46,19 +49,13 @@ class AuthServiceImpl(
             )
         )
             .flatMap { auth ->
-                ReactiveSecurityContextHolder
-                    .getContext().flatMap { context ->
-                        context.authentication = auth
-                        Mono.just(context)
-                    }
-                    .flatMap { securityContext ->
-                        securityContextRepository
-                            .save(exchange, securityContext)
-                            .then(userService.me(loginRequest.email))
-                    }
-
+                val securityContext: SecurityContext = SecurityContextImpl(auth)
+                securityContextRepository
+                    .save(exchange, securityContext)
+                    .then(userService.me(loginRequest.email))
             }
             .onErrorResume {
+                log.error("Login failed: ${it.message}", it)
                 Mono.error(
                     AuthProcessingException(
                         "Login failed: ${it.message}",
@@ -66,7 +63,6 @@ class AuthServiceImpl(
                     )
                 )
             }
-            .log()
 
     override fun register(registerRequest: RegistrationRequest): Mono<Void> =
         userService.existsByEmailAndProvider(registerRequest.email, AuthType.MANUAL)
@@ -176,19 +172,21 @@ class AuthServiceImpl(
     override fun me(auth: Authentication): Mono<UserDto> =
         when (val principal = auth.principal) {
             is CoAssembleUserDetails -> userService.me(principal.username)
-//            is OAuth2AuthenticationToken -> userService.me(principal.principal/)/
             else -> throw AuthProcessingException("Invalid principal type", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
 
-    private fun sendPasswordChangedEmail(email: String): Mono<Void> {
-        val args = SendMailMessageArgs(
-            receiver = email,
-            type = MailMessageType.PASSWORD_CHANGED,
-            data = mapOf("receiverEmail" to email, "loginPageLink" to "${coAssembleProperties.mailLinkPrefix}/login")
+    private fun sendPasswordChangedEmail(email: String): Mono<Void> =
+        mailService.sendMailMessage(
+            SendMailMessageArgs(
+                receiver = email,
+                type = MailMessageType.PASSWORD_CHANGED,
+                data = mapOf(
+                    "receiverEmail" to email,
+                    "loginPageLink" to "${coAssembleProperties.mailLinkPrefix}/login"
+                )
+            )
         )
-        return mailService.sendMailMessage(args)
-    }
 
     private fun constructMailVerificationLink(verificationToken: String, email: String): String =
         "${coAssembleProperties.mailLinkPrefix}/verify-email/$email?token=$verificationToken"

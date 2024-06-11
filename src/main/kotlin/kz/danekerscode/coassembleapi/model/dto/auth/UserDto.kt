@@ -9,7 +9,7 @@ data class UserDto(
     var email: String,
     var username: String,
     var provider: AuthType,
-    var techStack: List<TechStackItem> = emptyList(),
+    var techStack: List<TechStackItem> = mutableListOf(),
     var roles: List<SecurityRole>,
     var emailVerified: Boolean = false
 )

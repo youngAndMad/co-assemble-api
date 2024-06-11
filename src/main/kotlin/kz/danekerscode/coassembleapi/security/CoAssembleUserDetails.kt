@@ -10,7 +10,7 @@ class CoAssembleUserDetails(
     override fun getAuthorities(): List<SimpleGrantedAuthority> = user.roles
         .map { SimpleGrantedAuthority(it.name) }
 
-    override fun getPassword(): String = user.password
+    override fun getPassword(): String = user.password!!
 
     override fun getUsername(): String = user.email
 }

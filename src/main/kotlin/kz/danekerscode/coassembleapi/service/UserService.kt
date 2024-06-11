@@ -4,6 +4,8 @@ import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
+import kz.danekerscode.coassembleapi.security.CoAssembleUserDetails
+import org.springframework.http.codec.multipart.FilePart
 import reactor.core.publisher.Mono
 
 interface UserService {
@@ -30,5 +32,7 @@ interface UserService {
 
     fun createAdmin(email: String, password: String): Mono<Void>
 
+    fun uploadAvatar(currentUser: CoAssembleUserDetails, file: Mono<FilePart>): Mono<Void>
 
+    fun deleteAvatar(currentUser: CoAssembleUserDetails): Mono<Void>
 }

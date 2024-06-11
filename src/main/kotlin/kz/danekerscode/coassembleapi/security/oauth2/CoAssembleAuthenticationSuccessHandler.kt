@@ -1,6 +1,8 @@
 package kz.danekerscode.coassembleapi.security.oauth2
 
+import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.OAUTH2_PRINCIPAL_AVATAR_URL
 import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
+import kz.danekerscode.coassembleapi.model.entity.Avatar
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.model.enums.SecurityRole
@@ -53,12 +55,21 @@ class CoAssembleAuthenticationSuccessHandler(
                                 userEmail,
                                 provider
                             )
-                            val user = User()
-                            user.email = userEmail
-                            user.provider = provider
-                            user.roles = mutableListOf(SecurityRole.ROLE_USER)
-                            user.username = userEmail
-                            user.emailVerified = true
+
+                            val user = User(
+                                username = userEmail,
+                                email = userEmail,
+                                provider = provider,
+                                roles = mutableListOf(SecurityRole.ROLE_USER),
+                                emailVerified = true,
+                            )
+
+                            if (principal.attributes.containsKey(OAUTH2_PRINCIPAL_AVATAR_URL)) {
+                                user.image = Avatar(
+                                    uri = URI.create(principal.attributes[OAUTH2_PRINCIPAL_AVATAR_URL].toString())
+                                )
+                            }
+
                             userService.save(user)
                                 .then()
                         }

@@ -32,7 +32,8 @@ class SecurityConfig {
         coAssembleAuthenticationProvider: ReactiveAuthenticationManager,
         coAssembledServerLogoutSuccessHandler: CoAssembledServerLogoutSuccessHandler,
         coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler,
-        coAssembleAuthFilter: CoAssembleAuthFilter
+        coAssembleAuthFilter: CoAssembleAuthFilter,
+        serverSecurityContextRepository: ServerSecurityContextRepository
     ): SecurityWebFilterChain =
         http
             .headers { headers ->
@@ -74,6 +75,7 @@ class SecurityConfig {
                     .logoutSuccessHandler(coAssembledServerLogoutSuccessHandler)
                     .logoutUrl("/api/v1/auth/logout")
             }
+            .securityContextRepository(serverSecurityContextRepository)
             .addFilterAt(coAssembleAuthFilter, SecurityWebFiltersOrder.LAST)
             .build()
 
