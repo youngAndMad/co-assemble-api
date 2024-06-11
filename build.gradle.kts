@@ -55,24 +55,6 @@ kapt {
     }
 }
 
-release {
-    failOnCommitNeeded = true
-    failOnPublishNeeded = true
-    failOnSnapshotDependencies = true
-    failOnUnversionedFiles = true
-    failOnUpdateNeeded = true
-    preTagCommitMessage = '[Gradle Release Plugin] - pre tag commit: '
-    tagCommitMessage = '[Gradle Release Plugin] - creating tag: '
-    newVersionCommitMessage = '[Gradle Release Plugin] - new version commit: '
-    tagTemplate = '${version}'
-    versionPropertyFile = 'build.gradle.kts'
-    snapshotSuffix = '-SNAPSHOT'
-    buildTasks = []
-
-    git {
-        requireBranch.set('master')
-    }
-}
 
 kotlin {
     compilerOptions {

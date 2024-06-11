@@ -21,7 +21,7 @@ import java.net.URI
 @Component
 class CoAssembleAuthenticationSuccessHandler(
     private val userService: UserService,
-    private val githubApiClient: GithubApiClient
+    private val githubApiClient: GithubApiClient,
 ) : ServerAuthenticationSuccessHandler {
 
     private val log: Logger = LoggerFactory.getLogger(this.javaClass)

@@ -6,7 +6,7 @@ on:
     types:
       - completed
     branches:
-      - test
+      - 'avoid-workflow'
 
 jobs:
   build-docker-image:

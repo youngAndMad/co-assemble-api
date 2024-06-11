@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono
 @Component
 class CoAssembleAuthFilter(
     private var githubApiClient: GithubApiClient,
-    private var coAssembleUserDetailService: ReactiveUserDetailsService
+    private var coAssembleUserDetailService: ReactiveUserDetailsService,
 ) : WebFilter {
 
     override fun filter(
