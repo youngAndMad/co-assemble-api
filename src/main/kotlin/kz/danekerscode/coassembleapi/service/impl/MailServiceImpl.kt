@@ -47,7 +47,7 @@ class MailServiceImpl(
                 msg
             }
             .doOnSuccess { msg ->
-                mailSender.send(msg)
+//                mailSender.send(msg) todo uncomment
 
                 log.info(
                     "Successfully delivered mail message. Receiver: {}, Type: {}",

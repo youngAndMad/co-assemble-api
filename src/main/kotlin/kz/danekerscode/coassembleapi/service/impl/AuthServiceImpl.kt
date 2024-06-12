@@ -214,7 +214,7 @@ class AuthServiceImpl(
         )
 
     private fun constructMailVerificationLink(verificationToken: String, email: String): String =
-        "${coAssembleProperties.mailLinkPrefix}/verify-email/$email?token=$verificationToken"
+        "${coAssembleProperties.mailLinkPrefix}/verify-email?email=$email&token=$verificationToken"
 
 }
 

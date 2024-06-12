@@ -4,6 +4,7 @@ import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.core.mapper.UserMapper
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
+import kz.danekerscode.coassembleapi.model.dto.user.UserSearchCriteria
 import kz.danekerscode.coassembleapi.model.entity.Avatar
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
@@ -142,5 +143,9 @@ class UserServiceImpl(
                 })
         else
             Mono.empty()
+    }
+
+    override fun filterUsers(criteria: UserSearchCriteria): Mono<List<UserDto>> {
+        TODO("Not yet implemented")
     }
 }

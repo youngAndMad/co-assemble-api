@@ -20,11 +20,8 @@ class WebConfig {
         val corsConfig = CorsConfiguration().apply {
             allowedOrigins = listOf("http://localhost:3000") // todo move to env
             maxAge = 8000L
-            addAllowedMethod("PUT")
-            addAllowedMethod("GET")
-            addAllowedMethod("DELETE")
-            addAllowedMethod("POST")
-            addAllowedMethod("PATCH")
+            addAllowedMethod("*")
+            addAllowedHeader("*")
         }
 
         val source = UrlBasedCorsConfigurationSource().apply {

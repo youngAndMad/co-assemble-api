@@ -2,6 +2,7 @@ package kz.danekerscode.coassembleapi.service
 
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
+import kz.danekerscode.coassembleapi.model.dto.user.UserSearchCriteria
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.security.CoAssembleUserDetails
@@ -35,4 +36,6 @@ interface UserService {
     fun uploadAvatar(currentUser: CoAssembleUserDetails, file: Mono<FilePart>): Mono<Void>
 
     fun deleteAvatar(currentUser: CoAssembleUserDetails): Mono<Void>
+
+    fun filterUsers(criteria: UserSearchCriteria): Mono<List<UserDto>>
 }

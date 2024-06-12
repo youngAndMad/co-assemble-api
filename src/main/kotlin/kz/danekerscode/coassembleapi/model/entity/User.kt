@@ -21,6 +21,6 @@ class User(
     var image: Avatar? = null,
     @Field("techStack") // MongoDB field name
     val techStack: List<TechStackItem> = mutableListOf(),
-    var lastLoginAddress: InetSocketAddress? = null, // todo check in each login
+    var lastLoginAddress: String? = null, // todo check in each login
 ) : Serializable {
 }
