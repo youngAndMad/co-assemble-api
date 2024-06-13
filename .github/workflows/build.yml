@@ -2,8 +2,8 @@ name: Build project
 
 on:
   push:
-    branches:
-      - '!master'
+    branches-ignore:
+      - main
 
 jobs:
   build-project:
