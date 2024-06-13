@@ -10,9 +10,6 @@ import reactor.core.publisher.Mono
 
 object CookieUtils {
 
-//    fun getCookie(request: ServerHttpRequest, name: String): Mono<HttpCookie?> =
-//        Mono.justOrEmpty(request.cookies[name]?.firstOrNull())
-
     fun getCookie(request: ServerHttpResponse, name: String): Mono<HttpCookie?> =
         Mono.justOrEmpty(request.cookies[name]?.firstOrNull())
 
