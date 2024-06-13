@@ -6,7 +6,7 @@ on:
     types:
       - completed
     branches:
-      - 'test'
+      - 'master' # todo change to test after creating prod env
 
 jobs:
   build-docker-image:

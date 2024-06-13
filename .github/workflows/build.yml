@@ -2,8 +2,10 @@ name: Build project
 
 on:
   push:
-    branches-ignore:
-      - main
+    branches:
+      - master
+#    branches-ignore: todo uncomment after creating prod env
+#      - master
 
 jobs:
   build-project:
