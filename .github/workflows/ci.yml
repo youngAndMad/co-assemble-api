@@ -35,13 +35,17 @@ jobs:
         run: ./gradlew build bootJar
 
       - name: docker login
-        run: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+        run: echo $DOCKER_PASSWORD | docker login --$DOCKER_USERNAME foo --password-stdin
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/co-assemble-api .
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/co-assemble-api
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
