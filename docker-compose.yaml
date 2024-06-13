@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  co-assemble-api:
+    image: daneker/co-assemble-api:latest
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mongodb
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://co-assemble:co-assemble@mongodb:27017/co-assemble
+
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=co-assemble
+      - MONGO_INITDB_ROOT_PASSWORD=co-assemble
+    volumes:
+      - dbdata6:/data/db
+
+volumes:
+  dbdata6:
