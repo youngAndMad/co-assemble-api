@@ -3,7 +3,7 @@ name: Build project
 on:
   push:
     branches:
-      - 'avoid-workflow'
+      - '!master'
 
 jobs:
   build-project:

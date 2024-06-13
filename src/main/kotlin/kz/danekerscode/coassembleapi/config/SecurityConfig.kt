@@ -3,6 +3,7 @@ package kz.danekerscode.coassembleapi.config
 import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
 import kz.danekerscode.coassembleapi.security.CoAssembleAuthFilter
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleAuthenticationSuccessHandler
+import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleServerAuthorizationRequestRepository
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembledServerLogoutSuccessHandler
 import org.springframework.boot.autoconfigure.security.reactive.PathRequest
 import org.springframework.context.annotation.Bean
@@ -29,11 +30,12 @@ class SecurityConfig {
     @Bean
     fun securityWebFilterChain(
         http: ServerHttpSecurity,
+        serverSecurityContextRepository: ServerSecurityContextRepository,
         coAssembleAuthenticationProvider: ReactiveAuthenticationManager,
         coAssembledServerLogoutSuccessHandler: CoAssembledServerLogoutSuccessHandler,
         coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler,
         coAssembleAuthFilter: CoAssembleAuthFilter,
-        serverSecurityContextRepository: ServerSecurityContextRepository
+        coAssembleServerAuthorizationRequestRepository: CoAssembleServerAuthorizationRequestRepository
     ): SecurityWebFilterChain =
         http
             .headers { headers ->

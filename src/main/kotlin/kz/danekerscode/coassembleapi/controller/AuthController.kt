@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.Operation
 import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
+import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
 import kz.danekerscode.coassembleapi.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ServerWebExchange
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -25,11 +27,11 @@ class AuthController(
     @Operation(summary = "Register a new user")
     fun register(@RequestBody registerRequest: RegistrationRequest) = authService.register(registerRequest)
 
-    @GetMapping("/verify-email/{email}")
+        @GetMapping("/verify-email")
     @Operation(summary = "Verify email")
     fun verifyEmail(
         @RequestParam token: String,
-        @PathVariable email: String
+        @RequestParam email: String
     ) = authService.verifyEmail(token, email)
 
     @Operation(summary = "Forgot password request to send email with reset password link")
@@ -46,5 +48,5 @@ class AuthController(
 
     @GetMapping("/me")
     @Operation(summary = "Get current user")
-    fun me(authentication: Authentication) = authService.me(authentication)
+    fun me(authentication: Authentication): Mono<UserDto> = authService.me(authentication)
 }
