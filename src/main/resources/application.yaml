@@ -52,3 +52,8 @@ server:
   error:
     include-message: always
   port: 8080
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /api-docs/swagger-ui.html
