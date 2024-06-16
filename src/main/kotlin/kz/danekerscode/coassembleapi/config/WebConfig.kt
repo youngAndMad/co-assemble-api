@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.cors.CorsConfiguration
@@ -10,6 +11,9 @@ import org.springframework.web.reactive.function.client.WebClient
 @Configuration
 class WebConfig {
 
+    @Value("\${cors.allowed.origins}")
+    private lateinit var allowedOriginList: List<String>
+
     @Bean
     fun githubWebClient() = WebClient.builder()
         .baseUrl("https://api.github.com")
@@ -18,7 +22,7 @@ class WebConfig {
     @Bean
     fun corsWebFilter(): CorsWebFilter {
         val corsConfig = CorsConfiguration().apply {
-            allowedOrigins = listOf("http://localhost:3000") // todo move to env
+            allowedOrigins = allowedOriginList
             maxAge = 8000L
             addAllowedMethod("*")
             addAllowedHeader("*")

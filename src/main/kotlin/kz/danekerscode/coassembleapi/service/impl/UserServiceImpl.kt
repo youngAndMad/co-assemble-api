@@ -15,12 +15,17 @@ import kz.danekerscode.coassembleapi.service.FileService
 import kz.danekerscode.coassembleapi.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.URI
 import java.nio.file.attribute.UserPrincipalNotFoundException
+
 
 @Service
 class UserServiceImpl(
@@ -28,6 +33,7 @@ class UserServiceImpl(
     private var userMapper: UserMapper,
     private var passwordEncoder: PasswordEncoder,
     private var fileService: FileService,
+    private var reactiveMongoTemplate: ReactiveMongoTemplate,
     private var coAssembleProperties: CoAssembleProperties
 ) : UserService {
 
@@ -145,7 +151,22 @@ class UserServiceImpl(
             Mono.empty()
     }
 
-    override fun filterUsers(criteria: UserSearchCriteria): Mono<List<UserDto>> {
-        TODO("Not yet implemented")
+    override fun filterUsers(criteria: UserSearchCriteria): Flux<UserDto> {
+        val query = Query()
+
+        criteria.keyword?.let {
+            query.addCriteria(Criteria().orOperator(
+                Criteria.where("email").regex(it, "i"),
+                Criteria.where("username").regex(it, "i")
+            ))
+        }
+
+
+        criteria.stackItemType?.let {
+            query.addCriteria(Criteria.where("techStack").`is`(it))
+        }
+
+        return reactiveMongoTemplate.find(query, User::class.java)
+            .map { user -> userMapper.toUserDto(user) }
     }
 }

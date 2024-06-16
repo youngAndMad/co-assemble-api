@@ -5,5 +5,15 @@ enum class TechStackItemType {
     BACKEND,
     DATABASE,
     DEVOPS,
-    OTHER // todo add more types
+    MOBILE,
+    CLOUD,
+    TESTING,
+    SECURITY,
+    AI,
+    ML,
+    BLOCKCHAIN,
+    IOT,
+    DATA_ANALYTICS,
+    UI_UX,
+    OTHER
 }

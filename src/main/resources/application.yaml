@@ -41,7 +41,9 @@ coassemble:
   verification-token-ttl: 3m
   mail-link-prefix: ${COASSEMBLE_DOMAIN:http://localhost:${server.port}/api/v1/auth}
 
-
+cors:
+  allowed:
+    origins: http://localhost:3000
 logging:
   level:
     kz.danekerscode.coassembleapi: debug
