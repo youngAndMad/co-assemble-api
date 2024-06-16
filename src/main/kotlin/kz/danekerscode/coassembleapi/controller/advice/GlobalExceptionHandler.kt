@@ -1,7 +1,7 @@
 package kz.danekerscode.coassembleapi.controller.advice
 
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
-import kz.danekerscode.coassembleapi.model.exception.FileNotFoundException
+import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -17,8 +17,8 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity(body, ex.status)
     }
 
-    @ExceptionHandler(FileNotFoundException::class)
-    fun handleFileNotFoundException(ex: FileNotFoundException): ResponseEntity<Any> {
+    @ExceptionHandler(EntityNotFoundException::class)
+    fun handleEntityNotFoundException(ex: EntityNotFoundException): ResponseEntity<Any> {
         val body = mapOf("error" to ex.message, "status" to HttpStatus.NOT_FOUND)
         return ResponseEntity(body, HttpStatus.NOT_FOUND)
     }

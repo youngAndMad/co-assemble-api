@@ -15,6 +15,9 @@ import kz.danekerscode.coassembleapi.service.FileService
 import kz.danekerscode.coassembleapi.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -30,6 +33,7 @@ class UserServiceImpl(
     private var userMapper: UserMapper,
     private var passwordEncoder: PasswordEncoder,
     private var fileService: FileService,
+    private var reactiveMongoTemplate: ReactiveMongoTemplate,
     private var coAssembleProperties: CoAssembleProperties
 ) : UserService {
 
@@ -148,7 +152,21 @@ class UserServiceImpl(
     }
 
     override fun filterUsers(criteria: UserSearchCriteria): Flux<UserDto> {
-        return userRepository.findByCriteria(criteria.keyword, criteria.stackItemType)
+        val query = Query()
+
+        criteria.keyword?.let {
+            query.addCriteria(Criteria().orOperator(
+                Criteria.where("email").regex(it, "i"),
+                Criteria.where("username").regex(it, "i")
+            ))
+        }
+
+
+        criteria.stackItemType?.let {
+            query.addCriteria(Criteria.where("techStack").`is`(it))
+        }
+
+        return reactiveMongoTemplate.find(query, User::class.java)
             .map { user -> userMapper.toUserDto(user) }
     }
 }
