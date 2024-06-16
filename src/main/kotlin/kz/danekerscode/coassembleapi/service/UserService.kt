@@ -7,6 +7,7 @@ import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.security.CoAssembleUserDetails
 import org.springframework.http.codec.multipart.FilePart
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface UserService {
@@ -37,5 +38,5 @@ interface UserService {
 
     fun deleteAvatar(currentUser: CoAssembleUserDetails): Mono<Void>
 
-    fun filterUsers(criteria: UserSearchCriteria): Mono<List<UserDto>>
+    fun filterUsers(criteria: UserSearchCriteria): Flux<UserDto>
 }

@@ -20,4 +20,6 @@ interface UserMapper {
     @Mapping(target = "provider", expression = "java(AuthType.MANUAL)")
     fun toAdmin(email: String, password: String): User
 
+    fun toUserDto(user: User): UserDto
+
 }

@@ -2,6 +2,7 @@ package kz.danekerscode.coassembleapi.service.impl
 
 
 import com.mongodb.BasicDBObject
+import kz.danekerscode.coassembleapi.model.exception.FileNotFoundException
 import kz.danekerscode.coassembleapi.service.FileService
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query
@@ -38,13 +39,13 @@ class FileServiceImpl(
         val query = query(where("_id").`is`(id))
         return gridFsOperations
             .findOne(query)
-            .switchIfEmpty(Mono.error(RuntimeException("File not found"))) // TODO: extend exception
+            .switchIfEmpty(Mono.error(FileNotFoundException(id)))
             .flatMap { gridFsOperations.delete(query) }
     }
 
     override fun downloadFile(id: String): Mono<ReactiveGridFsResource> =
         gridFsOperations.findOne(query(where("_id").`is`(id)))
-            .switchIfEmpty(Mono.error(RuntimeException("File not found"))) // TODO: extend exception
+            .switchIfEmpty(Mono.error(FileNotFoundException(id)))
             .flatMap { gridFsTemplate.getResource(it) }
 
     private fun getFileExtension(fileName: String?) = fileName?.substringAfterLast('.', "") ?: ""

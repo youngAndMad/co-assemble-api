@@ -1,15 +1,10 @@
-package kz.danekerscode.coassembleapi.controller.advice
+package kz.danekerscode.coassembleapi.model.exception
 
-import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
-import kz.danekerscode.coassembleapi.model.exception.FileNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler
 
-@RestControllerAdvice
-class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
+class FileNotFoundException(id: String) : RuntimeException("File not found with id: $id") {
 
     @ExceptionHandler(AuthProcessingException::class)
     fun handleAuthProcessingException(ex: AuthProcessingException): ResponseEntity<Any> {

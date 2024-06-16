@@ -18,9 +18,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.net.URI
 import java.nio.file.attribute.UserPrincipalNotFoundException
+
 
 @Service
 class UserServiceImpl(
@@ -145,7 +147,8 @@ class UserServiceImpl(
             Mono.empty()
     }
 
-    override fun filterUsers(criteria: UserSearchCriteria): Mono<List<UserDto>> {
-        TODO("Not yet implemented")
+    override fun filterUsers(criteria: UserSearchCriteria): Flux<UserDto> {
+        return userRepository.findByCriteria(criteria.keyword, criteria.stackItemType)
+            .map { user -> userMapper.toUserDto(user) }
     }
 }
