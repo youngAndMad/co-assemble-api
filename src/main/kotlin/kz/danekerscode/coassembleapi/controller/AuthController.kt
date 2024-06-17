@@ -1,13 +1,16 @@
 package kz.danekerscode.coassembleapi.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.constraints.Email
+import kz.danekerscode.coassembleapi.config.CoAssembleConstants
 import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
 import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
 import kz.danekerscode.coassembleapi.service.AuthService
+import kz.danekerscode.coassembleapi.utils.CookieUtils
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
@@ -18,7 +21,8 @@ import reactor.core.publisher.Mono
 @RestController
 @RequestMapping("/api/v1/auth")
 class AuthController(
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val objectMapper: ObjectMapper
 ) {
 
     @PostMapping("/login")
@@ -26,6 +30,15 @@ class AuthController(
         @RequestBody @Validated loginRequest: LoginRequest,
         exchange: ServerWebExchange
     ) = authService.login(loginRequest, exchange)
+        .flatMap<Void> {
+            CookieUtils.addCookie(
+                exchange.response,
+                CoAssembleConstants.USER,
+                objectMapper.writeValueAsString(it),
+                3600
+            )
+            Mono.empty()
+        }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -36,8 +49,19 @@ class AuthController(
     @Operation(summary = "Verify email")
     fun verifyEmail(
         @RequestParam token: String,
-        @RequestParam email: String
+        @RequestParam email: String,
+        exchange: ServerWebExchange
     ) = authService.verifyEmail(token, email)
+        .flatMap<Void> {
+            CookieUtils.addCookie(
+                exchange.response,
+                CoAssembleConstants.USER,
+                objectMapper.writeValueAsString(it),
+                3600
+            )
+            Mono.empty()
+        }
+
 
     @Operation(summary = "Resend email")
     @PostMapping("/resend-email/{email}")
