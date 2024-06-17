@@ -11,7 +11,9 @@ class VerificationToken(
     val createdDate: LocalDateTime,
     val type: VerificationTokenType,
     private val expireDate: LocalDateTime,
-    val userEmail: String
+    val userEmail: String,
+    val used: Boolean = false,
+    var enabled: Boolean = true
 ) {
     fun isExpired(): Boolean {
         return expireDate.isBefore(LocalDateTime.now())

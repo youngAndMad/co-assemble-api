@@ -17,9 +17,12 @@ class VerificationTokenServiceImpl(
     private val coAssembleProperties: CoAssembleProperties
 ) : VerificationTokenService {
 
-    override fun deleteById(id: String): Mono<Void> {
-        return verificationTokenRepository.deleteById(id)
-    }
+    override fun revokeById(id: String): Mono<Void> = verificationTokenRepository.findById(id)
+        .flatMap {
+            it.enabled = false
+            verificationTokenRepository.save(it)
+        }
+        .then()
 
     override fun findByValueAndUserEmail(
         value: String,
@@ -28,10 +31,6 @@ class VerificationTokenServiceImpl(
     ): Mono<VerificationToken> {
         return verificationTokenRepository
             .findByValueAndUserEmailAndType(Base64Utils.decodeToString(value), userEmail, type)
-    }
-
-    override fun cascadeForUser(userEmail: String): Mono<Void> {
-        return verificationTokenRepository.deleteAllByUserEmail(userEmail)
     }
 
     override fun generateForUser(userEmail: String, type: VerificationTokenType): Mono<VerificationToken> {
@@ -50,6 +49,13 @@ class VerificationTokenServiceImpl(
                 Mono.just(it)
             }
     }
+
+    override fun revokeForUserByType(userEmail: String, type: VerificationTokenType): Mono<Void> =
+        verificationTokenRepository.findAllByUserEmailAndType(userEmail, type)
+            .flatMap {
+                this.revokeById(it.id!!)
+            }
+            .then()
 
     private fun generateToken(): String = UUID.randomUUID().toString()
 

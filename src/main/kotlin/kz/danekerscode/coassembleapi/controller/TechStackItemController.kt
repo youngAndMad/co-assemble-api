@@ -20,7 +20,7 @@ class TechStackItemController(
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun createTechStackItem(@RequestBody techStackItem: TechStackItemDto) = techStackItemService.save(techStackItem)
-
+    // todo add validation
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{id}")
     fun deleteTechStackItem(@PathVariable id: String) = techStackItemService.deleteById(id)

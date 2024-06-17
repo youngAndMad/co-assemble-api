@@ -1,13 +1,16 @@
 package kz.danekerscode.coassembleapi.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import jakarta.validation.constraints.Email
 import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
+import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
 import kz.danekerscode.coassembleapi.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
@@ -19,20 +22,29 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest, exchange: ServerWebExchange) =
-        authService.login(loginRequest, exchange)
+    fun login(
+        @RequestBody @Validated loginRequest: LoginRequest,
+        exchange: ServerWebExchange
+    ) = authService.login(loginRequest, exchange)
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new user")
     fun register(@RequestBody registerRequest: RegistrationRequest) = authService.register(registerRequest)
 
-        @GetMapping("/verify-email")
+    @GetMapping("/verify-email")
     @Operation(summary = "Verify email")
     fun verifyEmail(
         @RequestParam token: String,
         @RequestParam email: String
     ) = authService.verifyEmail(token, email)
+
+    @Operation(summary = "Resend email")
+    @PostMapping("/resend-email/{email}")
+    fun resendEmail(
+        @PathVariable @Email email: String,
+        @RequestParam type: VerificationTokenType
+    ) = authService.resendEmail(email, type)
 
     @Operation(summary = "Forgot password request to send email with reset password link")
     @PostMapping("/forgot-password/request/{email}")

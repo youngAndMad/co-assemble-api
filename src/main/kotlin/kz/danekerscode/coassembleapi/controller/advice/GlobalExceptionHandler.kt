@@ -3,6 +3,7 @@ package kz.danekerscode.coassembleapi.controller.advice
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
 import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import org.springframework.http.HttpStatus
+import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -12,15 +13,21 @@ import org.springframework.web.reactive.result.method.annotation.ResponseEntityE
 class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(AuthProcessingException::class)
-    fun handleAuthProcessingException(ex: AuthProcessingException): ResponseEntity<Any> {
-        val body = mapOf("error" to ex.message, "status" to ex.status)
-        return ResponseEntity(body, ex.status)
-    }
+    fun handleAuthProcessingException(ex: AuthProcessingException): ResponseEntity<ProblemDetail> =
+        ResponseEntity(
+            ProblemDetail.forStatusAndDetail(
+                ex.status,
+                ex.message
+            ), ex.status
+        )
 
     @ExceptionHandler(EntityNotFoundException::class)
-    fun handleEntityNotFoundException(ex: EntityNotFoundException): ResponseEntity<Any> {
-        val body = mapOf("error" to ex.message, "status" to HttpStatus.NOT_FOUND)
-        return ResponseEntity(body, HttpStatus.NOT_FOUND)
-    }
+    fun handleEntityNotFoundException(ex: EntityNotFoundException): ResponseEntity<ProblemDetail> =
+        ResponseEntity(
+            ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.message
+            ), HttpStatus.NOT_FOUND
+        )
 
 }

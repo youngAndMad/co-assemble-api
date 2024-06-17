@@ -4,6 +4,7 @@ import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
+import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
 import org.springframework.security.core.Authentication
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
@@ -19,6 +20,8 @@ interface AuthService {
     fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<UserDto>
 
     fun register(registerRequest: RegistrationRequest): Mono<Void>
+
+    fun resendEmail(email: String, type: VerificationTokenType): Mono<Void>
 
     fun verifyEmail(token: String, email: String): Mono<UserDto>
 

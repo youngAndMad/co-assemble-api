@@ -15,6 +15,7 @@ class CoAssembleConstants {
             "/api/v1/auth/login",
             "/api/v1/auth/forgot-password/request/**",
             "/api/v1/auth/verify-email/**",
+            "/api/v1/auth/resend-email/**",
             "/oauth2/**",
             "/swagger-ui.html",
         )

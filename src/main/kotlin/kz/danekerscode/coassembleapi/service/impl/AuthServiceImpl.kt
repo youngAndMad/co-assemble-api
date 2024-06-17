@@ -27,7 +27,6 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import java.net.InetSocketAddress
 
 @Service
 class AuthServiceImpl(
@@ -79,15 +78,6 @@ class AuthServiceImpl(
                     .save(exchange, securityContext)
                     .then(userService.me(loginRequest.email))
             }
-            .onErrorResume {
-                log.error("Login failed: ${it.message}", it)
-                Mono.error(
-                    AuthProcessingException(
-                        "Login failed: ${it.message}",
-                        HttpStatus.UNAUTHORIZED
-                    )
-                )
-            }
 
     override fun register(registerRequest: RegistrationRequest): Mono<Void> =
         userService.existsByEmailAndProvider(registerRequest.email, AuthType.MANUAL)
@@ -105,10 +95,44 @@ class AuthServiceImpl(
             }
             .then()
 
+    override fun resendEmail(email: String, type: VerificationTokenType): Mono<Void> =
+        userService.existsByEmailAndProvider(email, AuthType.MANUAL)
+            .flatMap { userExists ->
+                if (userExists) {
+                    verificationTokenService.revokeForUserByType(email, type)
+                        .then(
+                            verificationTokenService.generateForUser(email, type)
+                                .flatMap { token ->
+                                    val args = SendMailMessageArgs(
+                                        email,
+                                        type.mailMessageType,
+                                        mapOf(
+                                            "receiverEmail" to email,
+                                            "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
+                                                .toString(),
+                                            "link" to constructMailVerificationLink(token.value, email)
+                                        )
+                                    )
+                                    mailService.sendMailMessage(args)
+                                }
+                        )
+                } else {
+                    Mono.error(
+                        AuthProcessingException(
+                            "User with email $email not found",
+                            HttpStatus.NOT_FOUND
+                        )
+                    )
+                }
+            }
+
     private fun createUserAndSendVerification(registerRequest: RegistrationRequest): Mono<Void> =
         userService.createUser(registerRequest, registerRequest.password)
             .flatMap { user ->
-                verificationTokenService.generateForUser(registerRequest.email, VerificationTokenType.MAIL_VERIFICATION)
+                verificationTokenService.generateForUser(
+                    registerRequest.email,
+                    VerificationTokenType.MAIL_VERIFICATION
+                )
                     .flatMap { token ->
                         val args = SendMailMessageArgs(
                             registerRequest.email,
@@ -125,12 +149,30 @@ class AuthServiceImpl(
             }
 
     override fun verifyEmail(token: String, email: String): Mono<UserDto> {
-        return verificationTokenService.findByValueAndUserEmail(token, email, VerificationTokenType.MAIL_VERIFICATION)
-            .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
+        return verificationTokenService.findByValueAndUserEmail(
+            token,
+            email,
+            VerificationTokenType.MAIL_VERIFICATION
+        )
+            .switchIfEmpty(
+                Mono.error(
+                    AuthProcessingException(
+                        "Invalid verification token",
+                        HttpStatus.BAD_REQUEST
+                    )
+                )
+            )
             .filter { !it.isExpired() }
-            .switchIfEmpty(Mono.error(AuthProcessingException("Verification token expired", HttpStatus.BAD_REQUEST)))
+            .switchIfEmpty(
+                Mono.error(
+                    AuthProcessingException(
+                        "Verification token expired",
+                        HttpStatus.BAD_REQUEST
+                    )
+                )
+            )
             .flatMap { verificationToken ->
-                verificationTokenService.deleteById(verificationToken.id!!)
+                verificationTokenService.revokeById(verificationToken.id!!)
                     .then(userService.verifyUserEmail(email))
                     .then(sendGreetingEmail(verificationToken.userEmail))
                     .then(userService.me(email))
@@ -177,14 +219,24 @@ class AuthServiceImpl(
         }
         .then()
 
+    // 0 || 1
     override fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void> =
         verificationTokenService.findByValueAndUserEmail(
-            forgotPasswordConfirmation.token, forgotPasswordConfirmation.email, VerificationTokenType.FORGOT_PASSWORD
+            forgotPasswordConfirmation.token,
+            forgotPasswordConfirmation.email,
+            VerificationTokenType.FORGOT_PASSWORD
         )
-            .switchIfEmpty(Mono.error(AuthProcessingException("Invalid verification token", HttpStatus.BAD_REQUEST)))
+            .switchIfEmpty(
+                Mono.error(
+                    AuthProcessingException(
+                        "Invalid verification token",
+                        HttpStatus.BAD_REQUEST
+                    )
+                )
+            )
             .flatMap { verificationToken ->
                 verificationTokenService
-                    .deleteById(verificationToken.id!!)
+                    .revokeById(verificationToken.id!!)
                     .then(
                         userService.updatePassword(
                             forgotPasswordConfirmation.email,

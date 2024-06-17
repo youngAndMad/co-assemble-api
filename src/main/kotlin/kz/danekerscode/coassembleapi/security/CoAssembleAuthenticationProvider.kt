@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.security
 
+import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
@@ -25,6 +26,9 @@ class CoAssembleAuthenticationProvider(
                 val password = auth.credentials.toString()
 
                 coAssembleUserDetailsService.findByUsername(username)
+                    .filter {
+                        (it as CoAssembleUserDetails).user.provider == AuthType.MANUAL
+                    }
                     .switchIfEmpty(Mono.error(AuthProcessingException("Invalid Credentials", HttpStatus.UNAUTHORIZED)))
                     .flatMap { userDetails ->
                         if (passwordEncoder.matches(password, userDetails.password))
