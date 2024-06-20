@@ -1,18 +1,18 @@
 package kz.danekerscode.coassembleapi.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.constraints.Email
-import kz.danekerscode.coassembleapi.config.CoAssembleConstants
+import kz.danekerscode.coassembleapi.core.mapper.UserMapper
 import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
 import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
+import kz.danekerscode.coassembleapi.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.service.AuthService
-import kz.danekerscode.coassembleapi.utils.CookieUtils
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ServerWebExchange
@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono
 @RequestMapping("/api/v1/auth")
 class AuthController(
     private val authService: AuthService,
-    private val objectMapper: ObjectMapper
+    private val userMapper: UserMapper
 ) {
 
     @PostMapping("/login")
@@ -30,15 +30,6 @@ class AuthController(
         @RequestBody @Validated loginRequest: LoginRequest,
         exchange: ServerWebExchange
     ) = authService.login(loginRequest, exchange)
-        .flatMap<Void> {
-            CookieUtils.addCookie(
-                exchange.response,
-                CoAssembleConstants.USER,
-                objectMapper.writeValueAsString(it),
-                3600
-            )
-            Mono.empty()
-        }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,16 +43,6 @@ class AuthController(
         @RequestParam email: String,
         exchange: ServerWebExchange
     ) = authService.verifyEmail(token, email)
-        .flatMap<Void> {
-            CookieUtils.addCookie(
-                exchange.response,
-                CoAssembleConstants.USER,
-                objectMapper.writeValueAsString(it),
-                3600
-            )
-            Mono.empty()
-        }
-
 
     @Operation(summary = "Resend email")
     @PostMapping("/resend-email/{email}")
@@ -73,16 +54,17 @@ class AuthController(
     @Operation(summary = "Forgot password request to send email with reset password link")
     @PostMapping("/forgot-password/request/{email}")
     fun forgotPasswordRequest(
-        @PathVariable email: String
+        @PathVariable @Email email: String
     ) = authService.forgotPasswordRequest(email)
 
     @Operation(summary = "Forgot password confirm")
-    @PostMapping("/forgot-password/confirm/{email}")
+    @PostMapping("/forgot-password/confirm")
     fun forgotPasswordConfirm(
         @RequestBody forgotPasswordConfirmation: ForgotPasswordConfirmation
     ) = authService.forgotPasswordConfirm(forgotPasswordConfirmation)
 
     @GetMapping("/me")
     @Operation(summary = "Get current user")
-    fun me(authentication: Authentication): Mono<UserDto> = authService.me(authentication)
+    fun me(@AuthenticationPrincipal currentUser: CoAssembleUserDetails):
+            Mono<UserDto> = Mono.just(userMapper.toUserDto(currentUser.user))
 }

@@ -161,12 +161,11 @@ class UserServiceImpl(
             ))
         }
 
-
         criteria.stackItemType?.let {
             query.addCriteria(Criteria.where("techStack").`is`(it))
         }
 
         return reactiveMongoTemplate.find(query, User::class.java)
-            .map { user -> userMapper.toUserDto(user) }
+            .map {  userMapper.toUserDto(it) }
     }
 }
