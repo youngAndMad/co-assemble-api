@@ -103,7 +103,6 @@ class UserServiceImpl(
                         Mono.empty()
                     }
                 }
-
             }
 
     override fun uploadAvatar(

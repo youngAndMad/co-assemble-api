@@ -12,7 +12,7 @@ import java.util.Arrays
 interface UserMapper {
     fun toMeResponse(user: User): UserDto
 
-    @Mapping(target = "emailVerified", ignore = true)
+    @Mapping(target = "emailVerified", expression ="java(true)")
     @Mapping(target = "username", source = "email")
     @Mapping(target = "email", source = "email")
     @Mapping(target = "techStack", expression = "java(new java.util.ArrayList<>())")

@@ -71,9 +71,9 @@ class AuthServiceImpl(
 //
 //                it.isAuthenticated
 //            }
-
             .flatMap { auth ->
                 val securityContext: SecurityContext = SecurityContextImpl(auth)
+                log.info("Saving security context {}" , auth.name)
                 securityContextRepository
                     .save(exchange, securityContext)
                     .then(userService.me(loginRequest.email))
@@ -83,6 +83,7 @@ class AuthServiceImpl(
         userService.existsByEmailAndProvider(registerRequest.email, AuthType.MANUAL)
             .flatMap { exists ->
                 if (exists) {
+                    log.error("User with email {} already exists", registerRequest.email)
                     Mono.error(
                         AuthProcessingException(
                             "User with email ${registerRequest.email} already exists",
@@ -90,6 +91,7 @@ class AuthServiceImpl(
                         )
                     )
                 } else {
+                    log.info("Creating user with email {}", registerRequest.email)
                     createUserAndSendVerification(registerRequest)
                 }
             }
@@ -117,6 +119,7 @@ class AuthServiceImpl(
                                 }
                         )
                 } else {
+                    log.error("User with email {} not found to resend email", email)
                     Mono.error(
                         AuthProcessingException(
                             "User with email $email not found",
@@ -129,11 +132,13 @@ class AuthServiceImpl(
     private fun createUserAndSendVerification(registerRequest: RegistrationRequest): Mono<Void> =
         userService.createUser(registerRequest, registerRequest.password)
             .flatMap { user ->
+                log.info("User with email {} created", user.email)
                 verificationTokenService.generateForUser(
                     registerRequest.email,
                     VerificationTokenType.MAIL_VERIFICATION
                 )
                     .flatMap { token ->
+                        log.info("Verification token generated for user {}", user.email)
                         val args = SendMailMessageArgs(
                             registerRequest.email,
                             MailMessageType.MAIL_CONFIRMATION,
@@ -219,7 +224,6 @@ class AuthServiceImpl(
         }
         .then()
 
-    // 0 || 1
     override fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void> =
         verificationTokenService.findByValueAndUserEmail(
             forgotPasswordConfirmation.token,
@@ -260,7 +264,7 @@ class AuthServiceImpl(
                 type = MailMessageType.PASSWORD_CHANGED,
                 data = mapOf(
                     "receiverEmail" to email,
-                    "loginPageLink" to "${coAssembleProperties.mailLinkPrefix}/login"
+                    "loginPageLink" to "${coAssembleProperties.domain}/auth/sign-in"
                 )
             )
         )
