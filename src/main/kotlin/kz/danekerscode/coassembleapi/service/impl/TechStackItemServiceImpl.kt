@@ -5,6 +5,7 @@ import kz.danekerscode.coassembleapi.model.dto.user.TechStackItemDto
 import kz.danekerscode.coassembleapi.model.entity.TechStackItem
 import kz.danekerscode.coassembleapi.repository.TechStackItemRepository
 import kz.danekerscode.coassembleapi.service.TechStackItemService
+import kz.danekerscode.coassembleapi.utils.safeFindById
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,7 +15,7 @@ class TechStackItemServiceImpl(
 
     override suspend fun findAll(): Flow<TechStackItem> = null!!//todo
 
-    override suspend fun findById(id: String): TechStackItem = techStackItemRepository.findById(id).get()//todo
+    override suspend fun findById(id: String): TechStackItem = techStackItemRepository.safeFindById(id)
 
     override suspend fun deleteById(id: String) = techStackItemRepository.deleteById(id)
 

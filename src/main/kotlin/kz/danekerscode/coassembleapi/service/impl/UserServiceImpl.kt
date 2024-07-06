@@ -1,6 +1,7 @@
 package kz.danekerscode.coassembleapi.service.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.core.mapper.UserMapper
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
@@ -16,7 +17,7 @@ import kz.danekerscode.coassembleapi.service.FileService
 import kz.danekerscode.coassembleapi.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -27,7 +28,7 @@ import java.nio.file.attribute.UserPrincipalNotFoundException
 
 @Service
 class UserServiceImpl(
-    private var mongoTemplate: MongoTemplate,
+    private var mongoTemplate: ReactiveMongoTemplate,
     private var userRepository: UserRepository,
     private var userMapper: UserMapper,
     private var passwordEncoder: PasswordEncoder,
@@ -151,9 +152,8 @@ class UserServiceImpl(
             query.addCriteria(Criteria.where("techStack").`is`(it))
         }
 
-        return null!!
-//        userRepository.find
-//        return mongoTemplate.find(query, User::class.java)
-//            .map { userMapper.toUserDto(it) }
+        return mongoTemplate.find(query, User::class.java)
+            .map { userMapper.toUserDto(it) }
+            .asFlow()
     }
 }

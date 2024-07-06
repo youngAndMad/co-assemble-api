@@ -7,6 +7,7 @@ import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import kz.danekerscode.coassembleapi.repository.VerificationTokenRepository
 import kz.danekerscode.coassembleapi.service.VerificationTokenService
 import kz.danekerscode.coassembleapi.utils.Base64Utils
+import kz.danekerscode.coassembleapi.utils.safeFindById
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -18,7 +19,7 @@ class VerificationTokenServiceImpl(
 ) : VerificationTokenService {
 
     override suspend fun revokeById(id: String): Unit =
-        verificationTokenRepository.findById(id).get()//todo
+        verificationTokenRepository.safeFindById(id)//todo
             .let {
                 it.enabled = false
                 verificationTokenRepository.save(it)

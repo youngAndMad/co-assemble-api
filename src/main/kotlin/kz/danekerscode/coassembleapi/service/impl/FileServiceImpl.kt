@@ -21,10 +21,10 @@ class FileServiceImpl(
     override suspend fun uploadFile(file: MultipartFile): String = gridFsTemplate
         .store(
             file.inputStream,
-            file.baseDbObject()
+            file.basicDbObject()
         ).toHexString()
 
-    fun MultipartFile.baseDbObject(): BasicDBObject { // todo move to separate class
+    fun MultipartFile.basicDbObject(): BasicDBObject { // todo move to separate class
         val it = this
         return BasicDBObject().apply {
             put("type", "file")
