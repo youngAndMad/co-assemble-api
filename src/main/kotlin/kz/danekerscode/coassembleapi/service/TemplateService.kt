@@ -13,6 +13,6 @@ interface TemplateService {
      * @param templateName name of the template
      * @return Mono with the template
      * */
-    fun getTemplate(templateName: String): Mono<Template>
+    suspend fun getTemplate(templateName: String): Template
 
 }

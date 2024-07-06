@@ -1,14 +1,13 @@
 package kz.danekerscode.coassembleapi.service
 
-import org.springframework.data.mongodb.gridfs.ReactiveGridFsResource
-import org.springframework.http.codec.multipart.FilePart
-import reactor.core.publisher.Mono
+import org.springframework.data.mongodb.gridfs.GridFsResource
+import org.springframework.web.multipart.MultipartFile
 
 interface FileService {
 
-    fun uploadFile(filePart: Mono<FilePart>): Mono<String>
+    suspend fun uploadFile(file: MultipartFile): String
 
-    fun deleteFile(id: String): Mono<Void>
+    suspend fun deleteFile(id: String)
 
-    fun downloadFile(id: String): Mono<ReactiveGridFsResource>
+    suspend fun downloadFile(id: String): GridFsResource
 }

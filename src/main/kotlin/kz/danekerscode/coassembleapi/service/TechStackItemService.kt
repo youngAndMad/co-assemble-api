@@ -1,19 +1,18 @@
 package kz.danekerscode.coassembleapi.service
 
+import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.model.dto.user.TechStackItemDto
 import kz.danekerscode.coassembleapi.model.entity.TechStackItem
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 interface TechStackItemService {
 
-    fun findAll(): Flux<TechStackItem>
+    suspend fun findAll(): Flow<TechStackItem>
 
-    fun findById(id: String): Mono<TechStackItem>
+    suspend fun findById(id: String): TechStackItem
 
-    fun deleteById(id: String): Mono<Void>
+    suspend fun deleteById(id: String)
 
-    fun save(techStackItem: TechStackItemDto): Mono<TechStackItem>
+    suspend fun save(techStackItem: TechStackItemDto): TechStackItem
 
-    fun update(id: String, techStackItem: TechStackItemDto): Mono<TechStackItem>
+    suspend fun update(id: String, techStackItem: TechStackItemDto): TechStackItem
 }

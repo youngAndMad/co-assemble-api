@@ -1,54 +1,47 @@
 package kz.danekerscode.coassembleapi.service.impl
 
-
 import com.mongodb.BasicDBObject
+import com.mongodb.client.gridfs.model.GridFSFile
 import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import kz.danekerscode.coassembleapi.service.FileService
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query
-import org.springframework.data.mongodb.gridfs.ReactiveGridFsOperations
-import org.springframework.data.mongodb.gridfs.ReactiveGridFsResource
-import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate
-import org.springframework.http.codec.multipart.FilePart
+import org.springframework.data.mongodb.gridfs.*
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Mono
 import java.io.File
 
-
 @Service
 class FileServiceImpl(
-    private val gridFsOperations: ReactiveGridFsOperations,
-    private val gridFsTemplate: ReactiveGridFsTemplate
+    private val gridFsOperations: GridFsOperations,
+    private val gridFsTemplate: GridFsTemplate
 ) : FileService {
 
-    override fun uploadFile(filePart: Mono<FilePart>): Mono<String> =
-        filePart.flatMap {
-            gridFsTemplate
-                .store(it.content(), it.filename(), it.headers().contentType.toString(), basicDBObjectFromFilePart(it))
-                .map { objectId -> objectId.toHexString() }
-        }
+    override suspend fun uploadFile(file: MultipartFile): String = gridFsTemplate
+        .store(
+            file.inputStream,
+            file.baseDbObject()
+        ).toHexString()
 
-    private fun basicDBObjectFromFilePart(it: FilePart): BasicDBObject =
-        BasicDBObject().apply {
+    fun MultipartFile.baseDbObject(): BasicDBObject { // todo move to separate class
+        val it = this
+        return BasicDBObject().apply {
             put("type", "file")
-            put("size", it.headers().contentLength)
-            put("name", it.filename())
-            put("extension", getFileExtension(it.filename()))
+            put("size", it.size)
+            put("name", it.name)
+            put("extension", it.contentType ?: "")
         }
-
-    override fun deleteFile(id: String): Mono<Void> {
-        val query = query(where("_id").`is`(id))
-        return gridFsOperations
-            .findOne(query)
-            .switchIfEmpty(Mono.error(EntityNotFoundException(File::class.java, id)))
-            .flatMap { gridFsOperations.delete(query) }
     }
 
-    override fun downloadFile(id: String): Mono<ReactiveGridFsResource> =
-        gridFsOperations.findOne(query(where("_id").`is`(id)))
-            .switchIfEmpty(Mono.error(EntityNotFoundException(File::class.java, id)))
-            .flatMap { gridFsTemplate.getResource(it) }
+    override suspend fun deleteFile(id: String) = gridFsOperations
+        .delete(query(where("_id").`is`(id)))
 
-    private fun getFileExtension(fileName: String?) = fileName?.substringAfterLast('.', "") ?: ""
+    override suspend fun downloadFile(id: String): GridFsResource {
+        val gridFSFile = gridFsOperations.findOne(query(where("_id").`is`(id)))
+            ?: throw EntityNotFoundException(File::class.java, "File not found with id: $id")
+
+        return gridFsTemplate.getResource(gridFSFile)
+    }
 
 }

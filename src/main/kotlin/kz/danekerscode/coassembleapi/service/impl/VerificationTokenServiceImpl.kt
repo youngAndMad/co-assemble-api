@@ -3,11 +3,11 @@ package kz.danekerscode.coassembleapi.service.impl
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.model.entity.VerificationToken
 import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
+import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import kz.danekerscode.coassembleapi.repository.VerificationTokenRepository
 import kz.danekerscode.coassembleapi.service.VerificationTokenService
 import kz.danekerscode.coassembleapi.utils.Base64Utils
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import java.util.*
 
@@ -17,24 +17,29 @@ class VerificationTokenServiceImpl(
     private val coAssembleProperties: CoAssembleProperties
 ) : VerificationTokenService {
 
-    override fun revokeById(id: String): Mono<Void> = verificationTokenRepository.findById(id)
-        .flatMap {
-            it.enabled = false
-            verificationTokenRepository.save(it)
-        }
-        .then()
+    override suspend fun revokeById(id: String): Unit =
+        verificationTokenRepository.safeFindById(id)
+            .let {
+                it.enabled = false
+                verificationTokenRepository.save(it)
+            }
 
-    override fun findByValueAndUserEmail(
+    override suspend fun findByValueAndUserEmail(
         value: String,
         userEmail: String,
         type: VerificationTokenType
-    ): Mono<VerificationToken> {
+    ): VerificationToken {
         return verificationTokenRepository
             .findByValueAndUserEmailAndType(Base64Utils.decodeToString(value), userEmail, type)
+            ?: throw EntityNotFoundException(
+                VerificationToken::class.java,
+                Pair("type", type),
+                Pair("userEmail", userEmail),
+                Pair("value", value)
+            )
     }
 
-    override fun generateForUser(userEmail: String, type: VerificationTokenType): Mono<VerificationToken> {
-
+    override suspend fun generateForUser(userEmail: String, type: VerificationTokenType): VerificationToken {
         val verificationToken = VerificationToken(
             value = generateToken(),
             userEmail = userEmail,
@@ -44,18 +49,14 @@ class VerificationTokenServiceImpl(
         )
 
         return verificationTokenRepository.save(verificationToken)
-            .flatMap {
-                it.value = Base64Utils.encodeToString(it.value)
-                Mono.just(it)
+            .apply {
+                this.value = Base64Utils.encodeToString(this.value)
             }
     }
 
-    override fun revokeForUserByType(userEmail: String, type: VerificationTokenType): Mono<Void> =
+    override suspend fun revokeForUserByType(userEmail: String, type: VerificationTokenType) =
         verificationTokenRepository.findAllByUserEmailAndType(userEmail, type)
-            .flatMap {
-                this.revokeById(it.id!!)
-            }
-            .then()
+            .collect { it.id?.let { id -> this.revokeById(id) } }
 
     private fun generateToken(): String = UUID.randomUUID().toString()
 

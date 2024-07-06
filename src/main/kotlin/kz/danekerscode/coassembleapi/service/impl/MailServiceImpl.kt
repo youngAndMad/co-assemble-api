@@ -8,7 +8,6 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
-import reactor.core.publisher.Mono
 import java.nio.charset.StandardCharsets
 
 
@@ -20,12 +19,11 @@ class MailServiceImpl(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun sendMailMessage(
+    override suspend fun sendMailMessage(
         sendMailMessageArgs: SendMailMessageArgs
-    ): Mono<Void> {
-        return templateService
-            .getTemplate(sendMailMessageArgs.type.templateName)
-            .map {
+    ): Unit =
+        templateService
+            .getTemplate(sendMailMessageArgs.type.templateName).let {
                 val msg = mailSender.createMimeMessage()
 
                 val helper = MimeMessageHelper(
@@ -44,17 +42,13 @@ class MailServiceImpl(
                 helper.setFrom("kkraken2005@gmail.com") // todo set sender
                 helper.setSubject(sendMailMessageArgs.type.subject)
 
-                msg
-            }
-            .doOnSuccess { msg ->
-//                mailSender.send(msg) todo uncomment
 
+                //                mailSender.send(msg) todo uncomment
+            }.let {
                 log.info(
                     "Successfully delivered mail message. Receiver: {}, Type: {}",
                     sendMailMessageArgs.receiver,
                     sendMailMessageArgs.type
                 )
             }
-            .then()
-    }
 }

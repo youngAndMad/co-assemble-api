@@ -1,25 +1,24 @@
 package kz.danekerscode.coassembleapi.service.impl
 
+import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.model.dto.user.TechStackItemDto
 import kz.danekerscode.coassembleapi.model.entity.TechStackItem
 import kz.danekerscode.coassembleapi.repository.TechStackItemRepository
 import kz.danekerscode.coassembleapi.service.TechStackItemService
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @Service
 class TechStackItemServiceImpl(
     private val techStackItemRepository: TechStackItemRepository
 ) : TechStackItemService {
 
-    override fun findAll(): Flux<TechStackItem> = techStackItemRepository.findAll()
+    override suspend fun findAll(): Flow<TechStackItem> = techStackItemRepository.findAll()
 
-    override fun findById(id: String): Mono<TechStackItem> = techStackItemRepository.findById(id)
+    override suspend fun findById(id: String): TechStackItem = techStackItemRepository.safeFindById(id)
 
-    override fun deleteById(id: String): Mono<Void> = techStackItemRepository.deleteById(id)
+    override suspend fun deleteById(id: String) = techStackItemRepository.deleteById(id)
 
-    override fun save(techStackItem: TechStackItemDto): Mono<TechStackItem> =
+    override suspend fun save(techStackItem: TechStackItemDto): TechStackItem =
         techStackItemRepository.save(
             TechStackItem(
                 name = techStackItem.name,
@@ -28,14 +27,12 @@ class TechStackItemServiceImpl(
             )
         )
 
-    override fun update(id: String, techStackItem: TechStackItemDto): Mono<TechStackItem> =
+    override suspend fun update(id: String, techStackItem: TechStackItemDto): TechStackItem =
         this.findById(id)
-            .flatMap {
-                it.apply {
-                    name = techStackItem.name
-                    description = techStackItem.description
-                    type = techStackItem.type
-                }
-                techStackItemRepository.save(it)
+            .apply {
+                name = techStackItem.name // todo create a separate fun to copy properties
+                description = techStackItem.description
+                type = techStackItem.type
+                techStackItemRepository.save(this)
             }
 }

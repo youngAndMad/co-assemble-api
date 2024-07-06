@@ -1,42 +1,41 @@
 package kz.danekerscode.coassembleapi.service
 
+import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.model.dto.auth.RegistrationRequest
 import kz.danekerscode.coassembleapi.model.dto.auth.UserDto
 import kz.danekerscode.coassembleapi.model.dto.user.UserSearchCriteria
 import kz.danekerscode.coassembleapi.model.entity.User
 import kz.danekerscode.coassembleapi.model.enums.AuthType
 import kz.danekerscode.coassembleapi.security.CoAssembleUserDetails
-import org.springframework.http.codec.multipart.FilePart
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import org.springframework.web.multipart.MultipartFile
 
 interface UserService {
 
-    fun existsByEmailAndProvider(
+    suspend fun existsByEmailAndProvider(
         username: String,
         provider: AuthType
-    ): Mono<Boolean>
+    ): Boolean
 
-    fun save(user: User): Mono<User>
+    suspend fun save(user: User): User
 
-    fun createUser(
+    suspend fun createUser(
         registerRequest: RegistrationRequest,
         password: String
-    ): Mono<User>
+    ): User
 
-    fun verifyUserEmail(email: String): Mono<Void>
+    suspend fun verifyUserEmail(email: String): User
 
-    fun findByEmail(email: String): Mono<User>
+    suspend fun findByEmail(email: String): User?
 
-    fun updatePassword(email: String, updatedPassword: String): Mono<Void>
+    suspend fun updatePassword(email: String, updatedPassword: String)
 
-    fun me(email: String): Mono<UserDto>
+    suspend fun me(email: String): UserDto
 
-    fun createAdmin(email: String, password: String): Mono<Void>
+    suspend fun createAdmin(email: String, password: String)
 
-    fun uploadAvatar(currentUser: CoAssembleUserDetails, file: Mono<FilePart>): Mono<Void>
+    suspend fun uploadAvatar(currentUser: CoAssembleUserDetails, file: MultipartFile)
 
-    fun deleteAvatar(currentUser: CoAssembleUserDetails): Mono<Void>
+    suspend fun deleteAvatar(currentUser: CoAssembleUserDetails)
 
-    fun filterUsers(criteria: UserSearchCriteria): Flux<UserDto>
+    fun filterUsers(criteria: UserSearchCriteria): Flow<UserDto>
 }

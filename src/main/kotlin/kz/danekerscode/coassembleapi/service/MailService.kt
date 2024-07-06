@@ -13,8 +13,8 @@ interface MailService {
      * @param sendMailMessageArgs arguments for sending mail message
      * @return Mono with the result of sending
      * */
-    fun sendMailMessage(
+    suspend fun sendMailMessage(
         sendMailMessageArgs: SendMailMessageArgs
-    ): Mono<Void>
+    )
 
 }

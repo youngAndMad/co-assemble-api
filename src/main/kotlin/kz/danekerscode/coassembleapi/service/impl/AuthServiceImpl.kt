@@ -1,5 +1,7 @@
 package kz.danekerscode.coassembleapi.service.impl
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.model.dto.auth.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.model.dto.auth.LoginRequest
@@ -17,22 +19,20 @@ import kz.danekerscode.coassembleapi.service.UserService
 import kz.danekerscode.coassembleapi.service.VerificationTokenService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.server.context.ServerSecurityContextRepository
+import org.springframework.security.web.context.SecurityContextRepository
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ServerWebExchange
-import reactor.core.publisher.Mono
 
 @Service
 class AuthServiceImpl(
     private val mailService: MailService,
-    private val authenticationManager: ReactiveAuthenticationManager,
-    private val securityContextRepository: ServerSecurityContextRepository,
+    private val authenticationManager: AuthenticationManager,
+    private val securityContextRepository: SecurityContextRepository,
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder,
     private val coAssembleProperties: CoAssembleProperties,
@@ -41,103 +41,71 @@ class AuthServiceImpl(
 
     private var log = LoggerFactory.getLogger(this::class.java)
 
-    override fun login(loginRequest: LoginRequest, exchange: ServerWebExchange): Mono<UserDto> =
-        authenticationManager.authenticate(
+    override suspend fun login(
+        loginRequest: LoginRequest,
+        request: HttpServletRequest,
+        response: HttpServletResponse
+    ): UserDto {
+        val auth = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 loginRequest.email,
                 loginRequest.password
             )
         )
-//            .filter { todo fix and add this feature
-//                val currentUser = it.principal as CoAssembleUserDetails
-//                val user = currentUser.user
-//
-//                val lastLoginAddress: InetSocketAddress? = user.lastLoginAddress
-//                if (lastLoginAddress == null) {
-//                    it.isAuthenticated
-//                }
-//
-//                val remoteAddress = exchange.request.remoteAddress
-//
-//                if (lastLoginAddress != remoteAddress) {
-//                    return Mono.error(
-//                        AuthProcessingException(
-//                            "Last login address is different from current. Will send verification email.",
-//                            HttpStatus.UNAUTHORIZED
-//                        )
-//
-//                    )
-//                }
-//
-//                it.isAuthenticated
-//            }
-            .flatMap { auth ->
-                val securityContext: SecurityContext = SecurityContextImpl(auth)
-                log.info("Saving security context {}" , auth.name)
-                securityContextRepository
-                    .save(exchange, securityContext)
-                    .then(userService.me(loginRequest.email))
-            }
 
-    override fun register(registerRequest: RegistrationRequest): Mono<Void> =
-        userService.existsByEmailAndProvider(registerRequest.email, AuthType.MANUAL)
-            .flatMap { exists ->
-                if (exists) {
-                    log.error("User with email {} already exists", registerRequest.email)
-                    Mono.error(
-                        AuthProcessingException(
-                            "User with email ${registerRequest.email} already exists",
-                            HttpStatus.BAD_REQUEST
-                        )
-                    )
-                } else {
-                    log.info("Creating user with email {}", registerRequest.email)
-                    createUserAndSendVerification(registerRequest)
-                }
-            }
-            .then()
+        val securityContext: SecurityContext = SecurityContextImpl(auth)
+        log.info("Saving security context {}", auth.name)
+        securityContextRepository.saveContext(securityContext, request, response)
 
-    override fun resendEmail(email: String, type: VerificationTokenType): Mono<Void> =
-        userService.existsByEmailAndProvider(email, AuthType.MANUAL)
-            .flatMap { userExists ->
-                if (userExists) {
-                    verificationTokenService.revokeForUserByType(email, type)
-                        .then(
-                            verificationTokenService.generateForUser(email, type)
-                                .flatMap { token ->
-                                    val args = SendMailMessageArgs(
-                                        email,
-                                        type.mailMessageType,
-                                        mapOf(
-                                            "receiverEmail" to email,
-                                            "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
-                                                .toString(),
-                                            "link" to constructMailVerificationLink(token.value, email)
-                                        )
-                                    )
-                                    mailService.sendMailMessage(args)
-                                }
-                        )
-                } else {
-                    log.error("User with email {} not found to resend email", email)
-                    Mono.error(
-                        AuthProcessingException(
-                            "User with email $email not found",
-                            HttpStatus.NOT_FOUND
-                        )
-                    )
-                }
-            }
+        return userService.me(auth.name)
+    }
 
-    private fun createUserAndSendVerification(registerRequest: RegistrationRequest): Mono<Void> =
+    override suspend fun register(registerRequest: RegistrationRequest) {
+        val existsByEmailAndProvider = userService.existsByEmailAndProvider(registerRequest.email, AuthType.MANUAL)
+        if (existsByEmailAndProvider) {
+            throw AuthProcessingException(
+                "User with email ${registerRequest.email} already exists",
+                HttpStatus.BAD_REQUEST
+            )
+        }
+        log.info("Creating user with email {}", registerRequest.email)
+        createUserAndSendVerification(registerRequest)
+    }
+
+    override suspend fun resendEmail(email: String, type: VerificationTokenType) {
+        val existsByEmailAndProvider = userService.existsByEmailAndProvider(email, AuthType.MANUAL)
+        if (existsByEmailAndProvider) {
+
+            throw AuthProcessingException(
+                "User with email $email not found",
+                HttpStatus.NOT_FOUND
+            )
+        }
+        verificationTokenService.revokeForUserByType(email, type)
+        verificationTokenService.generateForUser(email, type).also {
+            val args = SendMailMessageArgs(
+                email,
+                type.mailMessageType,
+                mapOf(
+                    "receiverEmail" to email,
+                    "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
+                        .toString(),
+                    "link" to constructMailVerificationLink(it.value, email)
+                )
+            )
+            mailService.sendMailMessage(args)
+        }
+    }
+
+    private suspend fun createUserAndSendVerification(registerRequest: RegistrationRequest) =
         userService.createUser(registerRequest, registerRequest.password)
-            .flatMap { user ->
+            .also { user ->
                 log.info("User with email {} created", user.email)
                 verificationTokenService.generateForUser(
                     registerRequest.email,
                     VerificationTokenType.MAIL_VERIFICATION
                 )
-                    .flatMap { token ->
+                    .also { token ->
                         log.info("Verification token generated for user {}", user.email)
                         val args = SendMailMessageArgs(
                             registerRequest.email,
@@ -153,38 +121,20 @@ class AuthServiceImpl(
                     }
             }
 
-    override fun verifyEmail(token: String, email: String): Mono<UserDto> {
-        return verificationTokenService.findByValueAndUserEmail(
+    override suspend fun verifyEmail(token: String, email: String): UserDto {
+        val verificationToken = verificationTokenService.findByValueAndUserEmail(
             token,
             email,
             VerificationTokenType.MAIL_VERIFICATION
-        )
-            .switchIfEmpty(
-                Mono.error(
-                    AuthProcessingException(
-                        "Invalid verification token",
-                        HttpStatus.BAD_REQUEST
-                    )
-                )
-            )
-            .filter { !it.isExpired() }
-            .switchIfEmpty(
-                Mono.error(
-                    AuthProcessingException(
-                        "Verification token expired",
-                        HttpStatus.BAD_REQUEST
-                    )
-                )
-            )
-            .flatMap { verificationToken ->
-                verificationTokenService.revokeById(verificationToken.id!!)
-                    .then(userService.verifyUserEmail(email))
-                    .then(sendGreetingEmail(verificationToken.userEmail))
-                    .then(userService.me(email))
-            }
+        ).also { it.checkValidation() }
+
+        verificationTokenService.revokeById(verificationToken.id!!)
+        userService.verifyUserEmail(email)
+        sendGreetingEmail(verificationToken.userEmail)
+        return userService.me(email)
     }
 
-    private fun sendGreetingEmail(email: String): Mono<Void> =
+    private suspend fun sendGreetingEmail(email: String) =
         mailService.sendMailMessage(
             SendMailMessageArgs(
                 receiver = email,
@@ -193,71 +143,63 @@ class AuthServiceImpl(
             )
         )
 
-    override fun forgotPasswordRequest(
+    override suspend fun forgotPasswordRequest(
         email: String
-    ): Mono<Void> = userService.findByEmail(email)
-        .filter { it.provider == AuthType.MANUAL }
-        .switchIfEmpty(
-            Mono.error(
-                AuthProcessingException(
-                    "User with email $email not found",
-                    HttpStatus.NOT_FOUND
+    ) {
+        val user = userService.findByEmail(email) ?: throw AuthProcessingException(
+            "User with email $email not found",
+            HttpStatus.NOT_FOUND
+        )
+
+        if (user.provider != AuthType.MANUAL) {
+            throw AuthProcessingException(
+                "User with email $email not found",
+                HttpStatus.NOT_FOUND
+            )
+        }
+
+        verificationTokenService.generateForUser(email, VerificationTokenType.FORGOT_PASSWORD).also { token ->
+            mailService.sendMailMessage(
+                SendMailMessageArgs(
+                    email,
+                    MailMessageType.FORGOT_PASSWORD,
+                    mapOf(
+                        "receiverEmail" to email,
+                        "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
+                            .toString(),
+                        "link" to "${coAssembleProperties.mailLinkPrefix}/forgot-password/confirm/$email?token=${token.value}"
+                    )
                 )
             )
-        )
-        .flatMap {
-            verificationTokenService.generateForUser(email, VerificationTokenType.FORGOT_PASSWORD)
-                .flatMap { token ->
-                    mailService.sendMailMessage(
-                        SendMailMessageArgs(
-                            email,
-                            MailMessageType.FORGOT_PASSWORD,
-                            mapOf(
-                                "receiverEmail" to email,
-                                "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
-                                    .toString(),
-                                "link" to "${coAssembleProperties.mailLinkPrefix}/forgot-password/confirm/$email?token=${token.value}"
-                            )
-                        )
-                    )
-                }
         }
-        .then()
+    }
 
-    override fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation): Mono<Void> =
-        verificationTokenService.findByValueAndUserEmail(
+    override suspend fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation) {
+        val verificationToken = verificationTokenService.findByValueAndUserEmail(
             forgotPasswordConfirmation.token,
             forgotPasswordConfirmation.email,
             VerificationTokenType.FORGOT_PASSWORD
         )
-            .switchIfEmpty(
-                Mono.error(
-                    AuthProcessingException(
-                        "Invalid verification token",
-                        HttpStatus.BAD_REQUEST
-                    )
-                )
-            )
-            .flatMap { verificationToken ->
-                verificationTokenService
-                    .revokeById(verificationToken.id!!)
-                    .then(
-                        userService.updatePassword(
-                            forgotPasswordConfirmation.email,
-                            passwordEncoder.encode(forgotPasswordConfirmation.password)
-                        )
-                    )
-                    .then(sendPasswordChangedEmail(verificationToken.userEmail))
-            }
+        verificationTokenService
+            .revokeById(verificationToken.id!!)
 
-    override fun me(auth: Authentication): Mono<UserDto> =
+        userService.updatePassword(
+            forgotPasswordConfirmation.email,
+            passwordEncoder.encode(forgotPasswordConfirmation.password)
+        )
+
+        sendPasswordChangedEmail(email = forgotPasswordConfirmation.email)
+    }
+
+
+    override suspend fun me(auth: Authentication): UserDto =
         when (val principal = auth.principal) {
             is CoAssembleUserDetails -> userService.me(principal.username)
             else -> throw AuthProcessingException("Invalid principal type", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
 
-    private fun sendPasswordChangedEmail(email: String): Mono<Void> =
+    private suspend fun sendPasswordChangedEmail(email: String) =
         mailService.sendMailMessage(
             SendMailMessageArgs(
                 receiver = email,
