@@ -5,9 +5,11 @@ import kz.danekerscode.coassembleapi.security.CoAssembleAuthFilter
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleAuthenticationSuccessHandler
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleAuthorizationRequestRepository
 import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleLogoutSuccessHandler
+import kz.danekerscode.coassembleapi.utils.isRunningInLocal
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
@@ -26,7 +28,9 @@ import org.springframework.security.web.context.SecurityContextRepository
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig (
+    private val env: Environment
+){
 
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
@@ -40,6 +44,13 @@ class SecurityConfig {
         coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler,
         coAssembleAuthorizationRequestRepository: CoAssembleAuthorizationRequestRepository
     ): SecurityFilterChain {
+
+        if (env.isRunningInLocal()) {
+            http.authorizeHttpRequests {
+                it.requestMatchers("/**").permitAll()
+            }
+        }
+
         http
             .csrf { it.disable() }
             .cors { it.disable() }
@@ -83,7 +94,6 @@ class SecurityConfig {
                         authEndpoint.authorizationRequestRepository(coAssembleAuthorizationRequestRepository)
                     }
             }
-
         return http.build()
     }
 

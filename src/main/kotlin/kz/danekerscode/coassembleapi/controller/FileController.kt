@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/v1/files")
@@ -32,6 +33,15 @@ class FileController(
         val resource = fileService.downloadFile(id)
 
         return constructContentResponse(resource, "inline")
+    }
+
+    @PostMapping("/upload")
+    suspend fun uploadFile(
+        @RequestParam("file") file: MultipartFile
+    ): ResponseEntity<String> {
+        val id = fileService.uploadFile(file)
+
+        return ResponseEntity.ok(id)
     }
 
     private fun constructContentResponse(resource: GridFsResource, mode: String) = ResponseEntity.ok()

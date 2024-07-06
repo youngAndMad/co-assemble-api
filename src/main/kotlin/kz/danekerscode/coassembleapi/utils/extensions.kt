@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject
 import kz.danekerscode.coassembleapi.model.dto.user.TechStackItemDto
 import kz.danekerscode.coassembleapi.model.entity.TechStackItem
 import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
+import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.web.multipart.MultipartFile
@@ -40,3 +41,5 @@ fun TechStackItemDto.copyToEntity(item: TechStackItem): Unit {
         this.type = it.type
     }
 }
+
+fun Environment.isRunningInLocal(): Boolean = this.activeProfiles.contains("local")

@@ -21,10 +21,9 @@ class FileServiceImpl(
     override suspend fun uploadFile(file: MultipartFile): String = gridFsTemplate
         .store(
             file.inputStream,
+            file.originalFilename,
             file.basicDbObject()
         ).toHexString()
-
-
 
     override suspend fun deleteFile(id: String) = gridFsOperations
         .delete(query(where("_id").`is`(id)))
