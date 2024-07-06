@@ -1,8 +1,8 @@
 package kz.danekerscode.coassembleapi.service.impl
 
-import com.mongodb.BasicDBObject
 import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import kz.danekerscode.coassembleapi.service.FileService
+import kz.danekerscode.coassembleapi.utils.basicDbObject
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query
 import org.springframework.data.mongodb.gridfs.GridFsOperations
@@ -24,15 +24,7 @@ class FileServiceImpl(
             file.basicDbObject()
         ).toHexString()
 
-    fun MultipartFile.basicDbObject(): BasicDBObject { // todo move to separate class
-        val it = this
-        return BasicDBObject().apply {
-            put("type", "file")
-            put("size", it.size)
-            put("name", it.name)
-            put("extension", it.contentType ?: "")
-        }
-    }
+
 
     override suspend fun deleteFile(id: String) = gridFsOperations
         .delete(query(where("_id").`is`(id)))

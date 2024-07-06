@@ -12,12 +12,10 @@ class AdminInitializer(
     private val coAssembleProperties: CoAssembleProperties,
     private val userService: UserService
 ) : ApplicationRunner {
-    override fun run(args: ApplicationArguments?) = runBlocking { // todo delete blocking
-//        userService.createAdmin(
-//            coAssembleProperties.adminEmail,
-//            coAssembleProperties.adminPassword
-//        )
+    override fun run(args: ApplicationArguments?) = runBlocking {
+        userService.createAdmin(
+            coAssembleProperties.adminEmail,
+            coAssembleProperties.adminPassword
+        )
     }
-
-
 }

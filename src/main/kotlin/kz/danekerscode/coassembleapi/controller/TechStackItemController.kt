@@ -3,6 +3,7 @@ package kz.danekerscode.coassembleapi.controller
 import kz.danekerscode.coassembleapi.model.dto.user.TechStackItemDto
 import kz.danekerscode.coassembleapi.service.TechStackItemService
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,8 +20,8 @@ class TechStackItemController(
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    suspend fun createTechStackItem(@RequestBody techStackItem: TechStackItemDto) = techStackItemService.save(techStackItem)
-    // todo add validation
+    suspend fun createTechStackItem(@RequestBody @Validated techStackItem: TechStackItemDto) = techStackItemService.save(techStackItem)
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{id}")
     suspend fun deleteTechStackItem(@PathVariable id: String) = techStackItemService.deleteById(id)

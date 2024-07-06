@@ -19,11 +19,13 @@ class VerificationTokenServiceImpl(
 ) : VerificationTokenService {
 
     override suspend fun revokeById(id: String): Unit =
-        verificationTokenRepository.safeFindById(id)//todo
+        verificationTokenRepository.safeFindById(id)
             .let {
                 it.enabled = false
-                verificationTokenRepository.save(it)
+                save(it)
             }
+
+    private suspend fun save(it: VerificationToken) = verificationTokenRepository.save(it)
 
     override suspend fun findByValueAndUserEmail(
         value: String,
@@ -49,7 +51,7 @@ class VerificationTokenServiceImpl(
             expireDate = LocalDateTime.now().plus(coAssembleProperties.verificationTokenTtl)
         )
 
-        return verificationTokenRepository.save(verificationToken)
+        return save(verificationToken)
             .apply {
                 this.value = Base64Utils.encodeToString(this.value)
             }

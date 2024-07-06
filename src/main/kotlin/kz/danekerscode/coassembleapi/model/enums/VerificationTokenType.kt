@@ -5,7 +5,7 @@ enum class VerificationTokenType(
 ) {
     MAIL_VERIFICATION(MailMessageType.MAIL_CONFIRMATION),
     PASSWORD_RESET(MailMessageType.PASSWORD_CHANGED),
-    TWO_FACTOR_AUTHENTICATION(MailMessageType.MAIL_CONFIRMATION), //todo create enum
+    TWO_FACTOR_AUTHENTICATION(MailMessageType.MAIL_CONFIRMATION),
     FORGOT_PASSWORD(MailMessageType.FORGOT_PASSWORD);
 
 }
