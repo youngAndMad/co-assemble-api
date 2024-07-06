@@ -1,20 +1,19 @@
 package kz.danekerscode.coassembleapi.repository
 
+import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.model.entity.VerificationToken
 import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @Repository
-interface VerificationTokenRepository : ReactiveMongoRepository<VerificationToken, String> {
+interface VerificationTokenRepository : CoroutineCrudRepository<VerificationToken, String> {
 
-    fun findByValueAndUserEmailAndType(
+    suspend fun findByValueAndUserEmailAndType(
         value: String,
         userEmail: String,
         type: VerificationTokenType
-    ): Mono<VerificationToken>
+    ): VerificationToken
 
-    fun findAllByUserEmailAndType(userEmail: String, type: VerificationTokenType): Flux<VerificationToken>
+    suspend fun findAllByUserEmailAndType(userEmail: String, type: VerificationTokenType): Flow<VerificationToken>
 }

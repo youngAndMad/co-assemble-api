@@ -1,7 +1,5 @@
 package kz.danekerscode.coassembleapi.core.helper
 
-import reactor.core.publisher.Mono
-
 /**
  * Interface for fetching user email from identity provider
  * */
@@ -12,9 +10,9 @@ interface IdentityProviderClient {
      * @param clientRegistrationId - client registration id
      * @param principalName - principal name
      * */
-    fun getUserEmail(
+    suspend fun getUserEmail(
         clientRegistrationId: String,
         principalName: String
-    ): Mono<String>
+    ): String
 
 }
