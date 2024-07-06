@@ -1,11 +1,13 @@
 package kz.danekerscode.coassembleapi.controller
 
+import jakarta.servlet.http.HttpServletResponse
 import kz.danekerscode.coassembleapi.service.FileService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.server.ServerWebExchange
+import org.springframework.core.io.InputStreamResource
+import org.springframework.data.mongodb.gridfs.GridFsResource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/files")
@@ -13,23 +15,30 @@ class FileController(
     private var fileService: FileService
 ) {
 
-    @GetMapping("/download/{id}")
-    fun downloadFile(
+    @GetMapping("/download/{id}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    suspend fun downloadFile(
         @PathVariable id: String,
-        exchange: ServerWebExchange
-    ) = fileService.downloadFile(id)
-        .flatMapMany {
-            exchange.response.headers.set("Content-Disposition", "attachment; filename=\"${it.filename}\"")
-            exchange.response.writeWith(it.downloadStream)
-        }
+        response: HttpServletResponse
+    ): ResponseEntity<InputStreamResource> {
+        val resource = fileService.downloadFile(id)
 
-    @GetMapping("/view/{id}")
-    fun viewFile(
+        return constructContentResponse(resource, "attachment")
+    }
+
+    @GetMapping("/view/{id}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    suspend fun viewFile(
         @PathVariable id: String,
-        exchange: ServerWebExchange
-    ) = fileService.downloadFile(id)
-        .flatMapMany {
-            exchange.response.headers.set("Content-Disposition", "inline; filename=\"${it.filename}\"")
-            exchange.response.writeWith(it.downloadStream)
+    ): ResponseEntity<InputStreamResource> {
+        val resource = fileService.downloadFile(id)
+
+        return constructContentResponse(resource, "inline")
+    }
+
+    private fun constructContentResponse(resource: GridFsResource, mode: String) = ResponseEntity.ok()
+        .headers {
+            it.set(HttpHeaders.CONTENT_DISPOSITION, "$mode; filename=\"${resource.filename}\"")
         }
+        .contentLength(resource.contentLength())
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(InputStreamResource(resource.inputStream))
 }

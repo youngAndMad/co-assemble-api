@@ -12,22 +12,22 @@ class TechStackItemController(
 ) {
 
     @GetMapping
-    fun allTechStackItems() = techStackItemService.findAll()
+    suspend fun allTechStackItems() = techStackItemService.findAll()
 
     @GetMapping("{id}")
-    fun techStackItemById(@PathVariable id: String) = techStackItemService.findById(id)
+    suspend fun techStackItemById(@PathVariable id: String) = techStackItemService.findById(id)
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun createTechStackItem(@RequestBody techStackItem: TechStackItemDto) = techStackItemService.save(techStackItem)
+    suspend fun createTechStackItem(@RequestBody techStackItem: TechStackItemDto) = techStackItemService.save(techStackItem)
     // todo add validation
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{id}")
-    fun deleteTechStackItem(@PathVariable id: String) = techStackItemService.deleteById(id)
+    suspend fun deleteTechStackItem(@PathVariable id: String) = techStackItemService.deleteById(id)
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("{id}")
-    fun updateTechStackItem(
+    suspend fun updateTechStackItem(
         @PathVariable id: String,
         @RequestBody techStackItem: TechStackItemDto
     ) = techStackItemService.update(id, techStackItem)

@@ -1,15 +1,15 @@
 package kz.danekerscode.coassembleapi.service.impl
 
 import com.mongodb.BasicDBObject
-import com.mongodb.client.gridfs.model.GridFSFile
 import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import kz.danekerscode.coassembleapi.service.FileService
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query
-import org.springframework.data.mongodb.gridfs.*
+import org.springframework.data.mongodb.gridfs.GridFsOperations
+import org.springframework.data.mongodb.gridfs.GridFsResource
+import org.springframework.data.mongodb.gridfs.GridFsTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import reactor.core.publisher.Mono
 import java.io.File
 
 @Service

@@ -18,7 +18,7 @@ class VerificationTokenServiceImpl(
 ) : VerificationTokenService {
 
     override suspend fun revokeById(id: String): Unit =
-        verificationTokenRepository.safeFindById(id)
+        verificationTokenRepository.findById(id).get()//todo
             .let {
                 it.enabled = false
                 verificationTokenRepository.save(it)

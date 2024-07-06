@@ -12,9 +12,9 @@ class TechStackItemServiceImpl(
     private val techStackItemRepository: TechStackItemRepository
 ) : TechStackItemService {
 
-    override suspend fun findAll(): Flow<TechStackItem> = techStackItemRepository.findAll()
+    override suspend fun findAll(): Flow<TechStackItem> = null!!//todo
 
-    override suspend fun findById(id: String): TechStackItem = techStackItemRepository.safeFindById(id)
+    override suspend fun findById(id: String): TechStackItem = techStackItemRepository.findById(id).get()//todo
 
     override suspend fun deleteById(id: String) = techStackItemRepository.deleteById(id)
 

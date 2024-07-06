@@ -27,6 +27,7 @@ spring:
     port: 587
   main:
     banner-mode: off
+    web-application-type: servlet
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false

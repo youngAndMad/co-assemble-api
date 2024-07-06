@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.core.runner
 
+import kotlinx.coroutines.runBlocking
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.service.UserService
 import org.springframework.boot.ApplicationArguments
@@ -11,11 +12,11 @@ class AdminInitializer(
     private val coAssembleProperties: CoAssembleProperties,
     private val userService: UserService
 ) : ApplicationRunner {
-    override fun run(args: ApplicationArguments?) {
-        userService.createAdmin(
-            coAssembleProperties.adminEmail,
-            coAssembleProperties.adminPassword
-        ).block()
+    override fun run(args: ApplicationArguments?) = runBlocking { // todo delete blocking
+//        userService.createAdmin(
+//            coAssembleProperties.adminEmail,
+//            coAssembleProperties.adminPassword
+//        )
     }
 
 

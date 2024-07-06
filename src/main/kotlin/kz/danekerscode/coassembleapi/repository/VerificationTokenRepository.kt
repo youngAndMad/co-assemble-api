@@ -3,10 +3,11 @@ package kz.danekerscode.coassembleapi.repository
 import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.model.entity.VerificationToken
 import kz.danekerscode.coassembleapi.model.enums.VerificationTokenType
+import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface VerificationTokenRepository : CoAssembleCoroutineMongoCrudRepository<VerificationToken, String> {
+interface VerificationTokenRepository : MongoRepository<VerificationToken, String> {
 
     suspend fun findByValueAndUserEmailAndType(
         value: String,

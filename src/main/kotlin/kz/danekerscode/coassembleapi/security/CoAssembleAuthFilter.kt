@@ -1,71 +1,58 @@
 package kz.danekerscode.coassembleapi.security
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import kotlinx.coroutines.runBlocking
 import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
 import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
-import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher
+import org.springframework.security.web.util.matcher.OrRequestMatcher
 import org.springframework.stereotype.Component
-import org.springframework.web.server.ServerWebExchange
-import org.springframework.web.server.WebFilter
-import org.springframework.web.server.WebFilterChain
-import reactor.core.publisher.Mono
-
+import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class CoAssembleAuthFilter(
     private var githubApiClient: GithubApiClient,
-    private var coAssembleUserDetailService: ReactiveUserDetailsService,
-) : WebFilter {
+    private var coAssembleUserDetailService: UserDetailsService,
+) : OncePerRequestFilter() {
 
-    override fun filter(
-        exchange: ServerWebExchange,
-        chain: WebFilterChain
-    ): Mono<Void> =
-        exchangeForFiltering(exchange, chain)
-            .flatMap {
-                ReactiveSecurityContextHolder.getContext()
-                    .flatMap { securityContext ->
-                        val authentication = securityContext.authentication
-                        if (authentication is OAuth2AuthenticationToken) {
-                            val principal = authentication.principal
-                            val username = principal.name
-                            val registrationId = authentication.authorizedClientRegistrationId
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) = runBlocking { // todo delete blocking
 
-                            githubApiClient.getUserEmail(registrationId, username)
-                                .flatMap { email ->
-                                    coAssembleUserDetailService.findByUsername(email)
-                                        .flatMap { userDetails ->
-                                            ReactiveSecurityContextHolder
-                                                .getContext().flatMap { context ->
-                                                    context.authentication = UsernamePasswordAuthenticationToken(
-                                                        userDetails,
-                                                        null,
-                                                        userDetails.authorities
-                                                    )
-                                                    Mono.just(context)
-                                                }
-                                        }
-                                }
-                        } else {
-                            chain.filter(exchange)
-                        }
-                    }
-                    .then()
+        with(SecurityContextHolder.getContext()){
+            if(shouldFilter(request) && authentication is OAuth2AuthenticationToken){
+                val oAuth2AuthenticationToken = authentication as OAuth2AuthenticationToken
+                val principal = oAuth2AuthenticationToken.principal
+                val username = principal.name
+                val registrationId = oAuth2AuthenticationToken.authorizedClientRegistrationId
+
+                val userEmail = githubApiClient.getUserEmail(registrationId, username)
+                val userDetails = coAssembleUserDetailService.loadUserByUsername(userEmail)
+                SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.authorities
+                )
             }
+        }
+
+        filterChain.doFilter(request, response)
+    }
 
 
-    private fun exchangeForFiltering(exchange: ServerWebExchange, chain: WebFilterChain): Mono<ServerWebExchange> =
-        Mono.just(exchange)
-            .filterWhen { shouldFilter(it) }
-            .switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+    private fun shouldFilter(request: HttpServletRequest): Boolean {
+        val matchers = INSECURE_ENDPOINTS.map { AntPathRequestMatcher(it) }
+        val negatedMatcher = NegatedRequestMatcher(OrRequestMatcher(matchers))
+        return negatedMatcher.matches(request)
+    }
 
-    private fun shouldFilter(exchange: ServerWebExchange): Mono<Boolean> =
-        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers(*INSECURE_ENDPOINTS))
-            .matches(exchange)
-            .map(ServerWebExchangeMatcher.MatchResult::isMatch)
 }

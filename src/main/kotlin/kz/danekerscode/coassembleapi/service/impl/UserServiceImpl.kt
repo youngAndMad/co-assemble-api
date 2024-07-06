@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile
 import java.net.URI
 import java.nio.file.attribute.UserPrincipalNotFoundException
 
-
 @Service
 class UserServiceImpl(
     private var mongoTemplate: MongoTemplate,

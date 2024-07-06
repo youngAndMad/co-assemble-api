@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.client.RestClient
 import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.reactive.CorsWebFilter
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
 
 @Configuration
 class WebConfig {
@@ -20,7 +20,7 @@ class WebConfig {
         .build()
 
     @Bean
-    fun corsWebFilter(): CorsWebFilter {
+    fun corsWebFilter(): CorsFilter {
         val corsConfig = CorsConfiguration().apply {
             allowedOrigins = allowedOriginList
             maxAge = 8000L
@@ -32,6 +32,6 @@ class WebConfig {
             registerCorsConfiguration("/**", corsConfig)
         }
 
-        return CorsWebFilter(source)
+        return CorsFilter(source)
     }
 }

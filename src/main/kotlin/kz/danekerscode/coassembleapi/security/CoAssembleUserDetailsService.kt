@@ -1,25 +1,30 @@
 package kz.danekerscode.coassembleapi.security
 
+import kotlinx.coroutines.runBlocking
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
 import kz.danekerscode.coassembleapi.service.UserService
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class CoAssembleUserDetailsService(
     val userService: UserService,
-) : ReactiveUserDetailsService {
+) : UserDetailsService {
 
-    override fun findByUsername(username: String?): Mono<UserDetails> =
-        Mono.justOrEmpty(username)
-            .switchIfEmpty(Mono.error(AuthProcessingException("Username is required.", HttpStatus.UNAUTHORIZED)))
-            .flatMap { userService.findByEmail(it) }
-            .switchIfEmpty(Mono.error(AuthProcessingException("Invalid credentials", HttpStatus.UNAUTHORIZED)))
-            .filter { it.emailVerified }
-            .switchIfEmpty(Mono.error(AuthProcessingException("Email not verified", HttpStatus.UNAUTHORIZED)))
-            .map { CoAssembleUserDetails(it) }
+    override fun loadUserByUsername(userEmail: String?): UserDetails = runBlocking { // todo delete blocking
+        userEmail ?: throw AuthProcessingException("Username is required.", HttpStatus.UNAUTHORIZED)
 
+        val user = userService.findByEmail(userEmail) ?: throw AuthProcessingException(
+            "Invalid credentials",
+            HttpStatus.UNAUTHORIZED
+        )
+
+        if (!user.emailVerified) {
+            throw AuthProcessingException("Email not verified", HttpStatus.UNAUTHORIZED)
+        }
+
+        CoAssembleUserDetails(user)
+    }
 }

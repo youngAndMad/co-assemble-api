@@ -1,48 +1,44 @@
 package kz.danekerscode.coassembleapi.utils
 
-import org.springframework.http.HttpCookie
-import org.springframework.http.ResponseCookie
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.util.SerializationUtils
-import org.springframework.web.server.ServerWebExchange
-import reactor.core.publisher.Mono
+import java.util.*
 
 object CookieUtils {
 
-    fun getCookie(request: ServerHttpResponse, name: String): Mono<HttpCookie?> =
-        Mono.justOrEmpty(request.cookies[name]?.firstOrNull())
+    fun getCookie(request: HttpServletRequest?, name: String?): Cookie? =
+        request?.cookies?.firstOrNull { cookie: Cookie -> cookie.name == name }
 
-    fun addCookie(
-        response: ServerHttpResponse,
-        name: String,
-        value: String,
-        maxAge: Long
-    ) {
-        val cookie = ResponseCookie.from(name, value)
-            .path("/")
-            .httpOnly(true)
-            .maxAge(maxAge)
-            .build()
+    fun addCookie(response: HttpServletResponse, name: String?, value: String?, maxAge: Int): Unit =
+        Cookie(name, value).apply {
+            path = "/"
+            isHttpOnly = true
+            this.maxAge = maxAge
+        }.let {
+            response.addCookie(it)
+        }
 
-        response.addCookie(cookie)
-    }
+    fun deleteCookie(request: HttpServletRequest, response: HttpServletResponse, name: String) =
+        request.cookies
+            .filter { cookie: Cookie -> cookie.name == name }
+            .map { cookie: Cookie ->
+                cookie.value = ""
+                cookie.path = "/"
+                cookie.maxAge = 0
+                cookie
+            }
+            .forEach {
+                response.addCookie(it)
+            }
 
-    fun deleteCookie(exchange: ServerWebExchange, name: String) =
-        exchange.response.addCookie(
-            ResponseCookie.from(name, "")
-                .path("/")
-                .maxAge(0)
-                .build()
+    fun serialize(`object`: Any?): String = Base64.getUrlEncoder()
+        .encodeToString(SerializationUtils.serialize(`object`))
+
+    fun <T> deserialize(cookie: Cookie, cls: Class<T>): T = cls.cast(
+        SerializationUtils.deserialize(
+            Base64.getUrlDecoder().decode(cookie.value)
         )
-
-    fun serialize(obj: Any): String =
-        Base64Utils.encodeToString(SerializationUtils.serialize(obj))
-
-    fun <T> deserialize(cookie: HttpCookie, cls: Class<T>): T =
-        cls.cast(
-            SerializationUtils.deserialize(
-                Base64Utils.decodeToString(cookie.value).toByteArray()
-            )
-        )
+    )
 }
