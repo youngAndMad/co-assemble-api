@@ -1,8 +1,8 @@
-package kz.danekerscode.coassembleapi.features.template.domain.service.impl
+package kz.danekerscode.coassembleapi.features.mail.domain.service.impl
 
 import freemarker.template.Configuration
 import freemarker.template.Template
-import kz.danekerscode.coassembleapi.features.template.domain.service.TemplateService
+import kz.danekerscode.coassembleapi.features.mail.domain.service.TemplateService
 import org.springframework.stereotype.Service
 
 @Service

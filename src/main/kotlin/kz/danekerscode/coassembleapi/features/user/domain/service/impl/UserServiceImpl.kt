@@ -2,19 +2,19 @@ package kz.danekerscode.coassembleapi.features.user.domain.service.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
-import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
-import kz.danekerscode.coassembleapi.features.user.data.mapper.UserMapper
+import kz.danekerscode.coassembleapi.core.config.properties.CoAssembleProperties
+import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
+import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.auth.representation.dto.RegistrationRequest
-import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
-import kz.danekerscode.coassembleapi.features.user.representation.dto.UserSearchCriteria
+import kz.danekerscode.coassembleapi.features.file.domain.service.FileService
 import kz.danekerscode.coassembleapi.features.user.data.entity.Avatar
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
-import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.user.data.enums.SecurityRole
+import kz.danekerscode.coassembleapi.features.user.data.mapper.UserMapper
 import kz.danekerscode.coassembleapi.features.user.data.repository.UserRepository
-import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
-import kz.danekerscode.coassembleapi.features.file.domain.service.FileService
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
+import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
+import kz.danekerscode.coassembleapi.features.user.representation.dto.UserSearchCriteria
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate

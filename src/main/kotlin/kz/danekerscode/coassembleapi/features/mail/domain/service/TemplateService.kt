@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.features.template.domain.service
+package kz.danekerscode.coassembleapi.features.mail.domain.service
 
 import freemarker.template.Template
 

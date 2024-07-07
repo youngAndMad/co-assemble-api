@@ -1,8 +1,8 @@
 package kz.danekerscode.coassembleapi.features.mail.domain.service.impl
 
 import kz.danekerscode.coassembleapi.features.mail.domain.service.MailService
-import kz.danekerscode.coassembleapi.features.template.domain.service.TemplateService
-import kz.danekerscode.coassembleapi.features.mail.representation.payload.SendMailMessageArgs
+import kz.danekerscode.coassembleapi.features.mail.domain.service.TemplateService
+import kz.danekerscode.coassembleapi.features.mail.representation.payload.SendMailMessageEvent
 import org.slf4j.LoggerFactory
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -19,10 +19,10 @@ class MailServiceImpl(
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override suspend fun sendMailMessage(
-        sendMailMessageArgs: SendMailMessageArgs
+        sendMailMessageEvent: SendMailMessageEvent
     ): Unit =
         templateService
-            .getTemplate(sendMailMessageArgs.type.templateName).let {
+            .getTemplate(sendMailMessageEvent.type.templateName).let {
                 val msg = mailSender.createMimeMessage()
 
                 val helper = MimeMessageHelper(
@@ -33,21 +33,21 @@ class MailServiceImpl(
 
                 val html = FreeMarkerTemplateUtils.processTemplateIntoString(
                     it,
-                    sendMailMessageArgs.data
+                    sendMailMessageEvent.data
                 )
 
                 helper.setText(html, true)
-                helper.setTo(sendMailMessageArgs.receiver)
+                helper.setTo(sendMailMessageEvent.receiver)
                 helper.setFrom("kkraken2005@gmail.com") // todo set sender
-                helper.setSubject(sendMailMessageArgs.type.subject)
+                helper.setSubject(sendMailMessageEvent.type.subject)
 
 
                 //                mailSender.send(msg) todo uncomment
             }.let {
                 log.info(
                     "Successfully delivered mail message. Receiver: {}, Type: {}",
-                    sendMailMessageArgs.receiver,
-                    sendMailMessageArgs.type
+                    sendMailMessageEvent.receiver,
+                    sendMailMessageEvent.type
                 )
             }
 }

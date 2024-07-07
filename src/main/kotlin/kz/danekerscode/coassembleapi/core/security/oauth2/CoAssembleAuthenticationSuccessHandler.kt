@@ -3,7 +3,6 @@ package kz.danekerscode.coassembleapi.core.security.oauth2
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import kotlinx.coroutines.runBlocking
-import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.OAUTH2_PRINCIPAL_AVATAR_URL
 import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.OAUTH2_PRINCIPAL_AVATAR_URL
 import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
 import kz.danekerscode.coassembleapi.features.user.data.entity.Avatar
