@@ -27,6 +27,8 @@ interface UserService {
 
     suspend fun findByEmail(email: String): User?
 
+    suspend fun findById(id: String): User
+
     suspend fun updatePassword(email: String, updatedPassword: String)
 
     suspend fun me(email: String): UserDto

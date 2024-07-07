@@ -8,9 +8,9 @@ import java.time.LocalDateTime
 @Document(collection = "projects")
 data class Project(
     var id: String? = null,
-    var title: String,
+    var name: String,
     var goal: String,
-    val createdAt: LocalDateTime,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
     var finished: Boolean = false,
     @ReadOnlyProperty
     @DBRef

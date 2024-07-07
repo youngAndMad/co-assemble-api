@@ -15,6 +15,7 @@ import kz.danekerscode.coassembleapi.features.user.data.repository.UserRepositor
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserSearchCriteria
+import kz.danekerscode.coassembleapi.utils.safeFindById
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -74,6 +75,8 @@ class UserServiceImpl(
 
     override suspend fun findByEmail(email: String): User? =
         userRepository.findByEmail(email)
+
+    override suspend fun findById(id: String): User = userRepository.safeFindById(id)
 
     override suspend fun updatePassword(email: String, updatedPassword: String) {
         (userRepository.findByEmail(email)
