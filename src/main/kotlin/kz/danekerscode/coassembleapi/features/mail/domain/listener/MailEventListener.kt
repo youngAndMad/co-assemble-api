@@ -3,7 +3,7 @@ package kz.danekerscode.coassembleapi.features.mail.domain.listener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kz.danekerscode.coassembleapi.features.mail.domain.service.MailService
-import kz.danekerscode.coassembleapi.features.mail.representation.payload.SendMailMessageEvent
+import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMailMessageEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component

@@ -2,7 +2,7 @@ package kz.danekerscode.coassembleapi.core.security.oauth2
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import kz.danekerscode.coassembleapi.config.CoAssembleConstants
+import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants
 import kz.danekerscode.coassembleapi.utils.CookieUtils
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest

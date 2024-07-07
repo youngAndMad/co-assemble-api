@@ -11,8 +11,10 @@ import kz.danekerscode.coassembleapi.features.auth.domain.service.VerificationTo
 import kz.danekerscode.coassembleapi.features.auth.representation.dto.ForgotPasswordConfirmation
 import kz.danekerscode.coassembleapi.features.auth.representation.dto.LoginRequest
 import kz.danekerscode.coassembleapi.features.auth.representation.dto.RegistrationRequest
+import kz.danekerscode.coassembleapi.features.auth.representation.event.UserLoginEvent
 import kz.danekerscode.coassembleapi.features.mail.data.enums.MailMessageType
-import kz.danekerscode.coassembleapi.features.mail.representation.payload.SendMailMessageEvent
+import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMailMessageEvent
+import kz.danekerscode.coassembleapi.features.user.data.entity.User
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
 import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
@@ -53,11 +55,42 @@ class AuthServiceImpl(
             )
         )
 
+        val coAssembleUserDetails = auth.principal as CoAssembleUserDetails
+        val user = coAssembleUserDetails.user
+
+//        if (!validLoginAddr(user, request)) {
+//            throw AuthProcessingException(
+//                "User with email ${loginRequest.email} already exists",
+//                HttpStatus.BAD_REQUEST
+//            )
+//        } todo implement
+
         val securityContext: SecurityContext = SecurityContextImpl(auth)
         log.info("Saving security context {}", auth.name)
+
         securityContextRepository.saveContext(securityContext, request, response)
 
-        return userService.me(auth.name)
+        return userService.me(auth.name).also {
+            checkLoginEventProduceCase(it, request)
+        }
+    }
+
+    private fun validLoginAddr(user: User, request: HttpServletRequest) =
+        user.lastLoginAddress == null || user.lastLoginAddress == request.remoteAddr
+
+
+    private fun checkLoginEventProduceCase(
+        it: UserDto,
+        request: HttpServletRequest
+    ) {
+        if (it.provider == AuthType.MANUAL) {
+            eventBus.publishEvent(
+                UserLoginEvent(
+                    userEmail = it.email,
+                    ip = request.remoteAddr
+                )
+            )
+        }
     }
 
     override suspend fun register(registerRequest: RegistrationRequest) {

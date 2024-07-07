@@ -2,7 +2,7 @@ package kz.danekerscode.coassembleapi.features.mail.domain.service.impl
 
 import kz.danekerscode.coassembleapi.features.mail.domain.service.MailService
 import kz.danekerscode.coassembleapi.features.mail.domain.service.TemplateService
-import kz.danekerscode.coassembleapi.features.mail.representation.payload.SendMailMessageEvent
+import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMailMessageEvent
 import org.slf4j.LoggerFactory
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper

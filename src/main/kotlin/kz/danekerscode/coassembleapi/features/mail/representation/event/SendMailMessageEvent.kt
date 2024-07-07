@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.features.mail.representation.payload
+package kz.danekerscode.coassembleapi.features.mail.representation.event
 
 import kz.danekerscode.coassembleapi.features.mail.data.enums.MailMessageType
 

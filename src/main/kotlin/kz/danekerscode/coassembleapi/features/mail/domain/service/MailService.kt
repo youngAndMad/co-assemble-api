@@ -1,6 +1,6 @@
 package kz.danekerscode.coassembleapi.features.mail.domain.service
 
-import kz.danekerscode.coassembleapi.features.mail.representation.payload.SendMailMessageEvent
+import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMailMessageEvent
 
 /**
  * Service for sending mail messages
