@@ -17,12 +17,15 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
-@Component
+//@Component
 class CoAssembleAuthFilter(
     private val githubApiClient: GithubApiClient,
     private val coAssembleUserDetailService: UserDetailsService,
     private val applicationScope: CoroutineScope
 ) : OncePerRequestFilter() {
+
+    private final val matchers = INSECURE_ENDPOINTS.map { AntPathRequestMatcher(it) }
+    val negatedMatcher = NegatedRequestMatcher(OrRequestMatcher(matchers))
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -51,11 +54,7 @@ class CoAssembleAuthFilter(
         }
     }
 
-
-    private fun shouldFilter(request: HttpServletRequest): Boolean {
-        val matchers = INSECURE_ENDPOINTS.map { AntPathRequestMatcher(it) }
-        val negatedMatcher = NegatedRequestMatcher(OrRequestMatcher(matchers))
-        return negatedMatcher.matches(request)
-    }
+    private fun shouldFilter(request: HttpServletRequest): Boolean =
+        negatedMatcher.matches(request)
 
 }

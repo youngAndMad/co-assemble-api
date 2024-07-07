@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.file.representation.rest
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import kz.danekerscode.coassembleapi.features.file.domain.service.FileService
 import org.springframework.core.io.InputStreamResource
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "Files")
 @RestController
 @RequestMapping("/api/v1/files")
 class FileController(

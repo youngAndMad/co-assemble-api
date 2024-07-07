@@ -1,12 +1,15 @@
 package kz.danekerscode.coassembleapi.core.config
 
+import org.apache.catalina.connector.Connector
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.client.RestClient
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
+
 
 @Configuration
 class WebConfig {
@@ -33,5 +36,13 @@ class WebConfig {
         }
 
         return CorsFilter(source)
+    }
+
+    /**
+     * https://github.com/spring-projects/spring-boot/issues/36763
+     * */
+    @Bean
+    fun disabledFacadeDiscard(): TomcatConnectorCustomizer = TomcatConnectorCustomizer { binding: Connector ->
+        binding.discardFacades = false
     }
 }

@@ -1,11 +1,13 @@
 package kz.danekerscode.coassembleapi.features.techstackitem.representation.rest
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import kz.danekerscode.coassembleapi.features.techstackitem.representation.dto.TechStackItemDto
 import kz.danekerscode.coassembleapi.features.techstackitem.domain.service.TechStackItemService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
+@Tag(name = "Tech Stack Items")
 @RestController
 @RequestMapping("/api/v1/tech-stack-items")
 class TechStackItemController(

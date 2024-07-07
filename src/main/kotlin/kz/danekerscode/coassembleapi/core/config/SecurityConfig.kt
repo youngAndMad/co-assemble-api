@@ -40,7 +40,7 @@ class SecurityConfig (
         http: HttpSecurity,
         coAssembleAuthenticationProvider: AuthenticationManager,
         coAssembledLogoutSuccessHandler: CoAssembleLogoutSuccessHandler,
-        coAssembleAuthFilter: CoAssembleAuthFilter,
+//        coAssembleAuthFilter: CoAssembleAuthFilter,
         coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler,
         coAssembleAuthorizationRequestRepository: CoAssembleAuthorizationRequestRepository
     ): SecurityFilterChain {
@@ -86,7 +86,7 @@ class SecurityConfig (
                     .logoutSuccessHandler(coAssembledLogoutSuccessHandler)
                     .logoutUrl("/api/v1/auth/logout")
             }
-            .addFilterBefore(coAssembleAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+//            .addFilterBefore(coAssembleAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .oauth2Login { oauth2 ->
                 oauth2.successHandler(coAssembleAuthenticationSuccessHandler)
                     .permitAll()

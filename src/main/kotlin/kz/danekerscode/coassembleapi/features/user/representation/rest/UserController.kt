@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.user.representation.rest
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserSearchCriteria
 import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
@@ -7,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
+@Tag(name = "Users")
 @RestController
 @RequestMapping("/api/v1/users")
 class UserController(
