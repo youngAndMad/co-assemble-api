@@ -13,6 +13,6 @@ interface IdentityProviderClient {
     suspend fun getUserEmail(
         clientRegistrationId: String,
         principalName: String
-    ): String
+    ): String?
 
 }

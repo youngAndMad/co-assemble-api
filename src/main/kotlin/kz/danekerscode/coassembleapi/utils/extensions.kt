@@ -1,8 +1,8 @@
 package kz.danekerscode.coassembleapi.utils
 
 import com.mongodb.BasicDBObject
-import kz.danekerscode.coassembleapi.model.dto.user.TechStackItemDto
-import kz.danekerscode.coassembleapi.model.entity.TechStackItem
+import kz.danekerscode.coassembleapi.features.techstackitem.representation.dto.TechStackItemDto
+import kz.danekerscode.coassembleapi.features.techstackitem.data.entity.TechStackItem
 import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.repository.MongoRepository
@@ -33,7 +33,7 @@ fun TechStackItemDto.toEntity() = TechStackItem(
     type = this.type
 )
 
-fun TechStackItemDto.copyToEntity(item: TechStackItem): Unit {
+fun TechStackItemDto.copyToEntity(item: TechStackItem) {
     val it = this
     item.apply {
         this.name = it.name

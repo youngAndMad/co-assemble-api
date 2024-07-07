@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.config.properties
+package kz.danekerscode.coassembleapi.core.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.time.Duration

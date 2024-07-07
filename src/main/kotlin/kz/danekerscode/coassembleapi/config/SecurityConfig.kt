@@ -1,10 +1,10 @@
 package kz.danekerscode.coassembleapi.config
 
 import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
-import kz.danekerscode.coassembleapi.security.CoAssembleAuthFilter
-import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleAuthenticationSuccessHandler
-import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleAuthorizationRequestRepository
-import kz.danekerscode.coassembleapi.security.oauth2.CoAssembleLogoutSuccessHandler
+import kz.danekerscode.coassembleapi.core.security.CoAssembleAuthFilter
+import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleAuthenticationSuccessHandler
+import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleAuthorizationRequestRepository
+import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleLogoutSuccessHandler
 import kz.danekerscode.coassembleapi.utils.isRunningInLocal
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean

@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.config
+package kz.danekerscode.coassembleapi.core.config
 
 class CoAssembleConstants {
     companion object {

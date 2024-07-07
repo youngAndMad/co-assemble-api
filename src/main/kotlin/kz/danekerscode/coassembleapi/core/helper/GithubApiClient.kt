@@ -20,7 +20,7 @@ class GithubApiClient(
      * @param principalName - principal name
      * */
     @Cacheable(key = "{#clientRegistrationId, #principalName}", value = ["github-user-email"])
-    override suspend fun getUserEmail(clientRegistrationId: String, principalName: String): String {
+    override suspend fun getUserEmail(clientRegistrationId: String, principalName: String): String? {
         val authorizedClient = authorizedClientService
             .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, principalName)
         val accessToken = authorizedClient.accessToken.tokenValue
@@ -32,6 +32,6 @@ class GithubApiClient(
             .retrieve()
             .body(Array<EmailDetails>::class.java)
             ?.first { it.verified && it.primary }
-            ?.email ?: ""
+            ?.email
     }
 }
