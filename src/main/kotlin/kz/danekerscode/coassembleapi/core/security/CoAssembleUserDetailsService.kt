@@ -1,7 +1,7 @@
 package kz.danekerscode.coassembleapi.core.security
 
 import kotlinx.coroutines.runBlocking
-import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
+import kz.danekerscode.coassembleapi.core.domain.errors.AuthProcessingException
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails

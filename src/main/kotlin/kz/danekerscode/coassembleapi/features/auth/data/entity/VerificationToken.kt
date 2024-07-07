@@ -1,7 +1,7 @@
 package kz.danekerscode.coassembleapi.features.auth.data.entity
 
 import kz.danekerscode.coassembleapi.features.auth.data.enums.VerificationTokenType
-import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
+import kz.danekerscode.coassembleapi.core.domain.errors.AuthProcessingException
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime

@@ -1,7 +1,7 @@
-package kz.danekerscode.coassembleapi.controller.advice
+package kz.danekerscode.coassembleapi.core.representation.rest.advice
 
-import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
-import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
+import kz.danekerscode.coassembleapi.core.domain.errors.AuthProcessingException
+import kz.danekerscode.coassembleapi.core.domain.errors.EntityNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity

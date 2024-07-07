@@ -17,7 +17,7 @@ import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMail
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
-import kz.danekerscode.coassembleapi.model.exception.AuthProcessingException
+import kz.danekerscode.coassembleapi.core.domain.errors.AuthProcessingException
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus

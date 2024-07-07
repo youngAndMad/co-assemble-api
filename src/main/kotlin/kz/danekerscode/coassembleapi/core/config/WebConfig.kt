@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.config
+package kz.danekerscode.coassembleapi.core.config
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean

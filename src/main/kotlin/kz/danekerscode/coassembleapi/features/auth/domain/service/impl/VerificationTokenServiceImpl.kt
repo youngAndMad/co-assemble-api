@@ -3,7 +3,7 @@ package kz.danekerscode.coassembleapi.features.auth.domain.service.impl
 import kz.danekerscode.coassembleapi.config.properties.CoAssembleProperties
 import kz.danekerscode.coassembleapi.features.auth.data.entity.VerificationToken
 import kz.danekerscode.coassembleapi.features.auth.data.enums.VerificationTokenType
-import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
+import kz.danekerscode.coassembleapi.core.domain.errors.EntityNotFoundException
 import kz.danekerscode.coassembleapi.features.auth.data.repository.VerificationTokenRepository
 import kz.danekerscode.coassembleapi.features.auth.domain.service.VerificationTokenService
 import kz.danekerscode.coassembleapi.utils.Base64Utils

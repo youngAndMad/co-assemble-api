@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.config
+package kz.danekerscode.coassembleapi.core.config
 
 import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
 import kz.danekerscode.coassembleapi.core.security.CoAssembleAuthFilter

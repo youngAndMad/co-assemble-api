@@ -3,7 +3,7 @@ package kz.danekerscode.coassembleapi.utils
 import com.mongodb.BasicDBObject
 import kz.danekerscode.coassembleapi.features.techstackitem.representation.dto.TechStackItemDto
 import kz.danekerscode.coassembleapi.features.techstackitem.data.entity.TechStackItem
-import kz.danekerscode.coassembleapi.model.exception.EntityNotFoundException
+import kz.danekerscode.coassembleapi.core.domain.errors.EntityNotFoundException
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

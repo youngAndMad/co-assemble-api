@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.model.exception
+package kz.danekerscode.coassembleapi.core.domain.errors
 
 class EntityNotFoundException(message: String) : RuntimeException(message) {
     constructor(
