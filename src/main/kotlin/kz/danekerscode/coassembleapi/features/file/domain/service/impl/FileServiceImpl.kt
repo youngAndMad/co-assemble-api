@@ -1,6 +1,7 @@
-package kz.danekerscode.coassembleapi.features.file.domain.service
+package kz.danekerscode.coassembleapi.features.file.domain.service.impl
 
 import kz.danekerscode.coassembleapi.core.domain.errors.EntityNotFoundException
+import kz.danekerscode.coassembleapi.features.file.domain.service.FileService
 import kz.danekerscode.coassembleapi.utils.basicDbObject
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query.query

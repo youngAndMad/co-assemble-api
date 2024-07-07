@@ -3,8 +3,9 @@ package kz.danekerscode.coassembleapi.core.security
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import kotlinx.coroutines.runBlocking
-import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
 import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -18,34 +19,36 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class CoAssembleAuthFilter(
-    private var githubApiClient: GithubApiClient,
-    private var coAssembleUserDetailService: UserDetailsService,
+    private val githubApiClient: GithubApiClient,
+    private val coAssembleUserDetailService: UserDetailsService,
+    private val applicationScope: CoroutineScope
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
-    ) = runBlocking { // todo delete blocking
+    ) { // todo delete blocking
+        applicationScope.launch {
+            with(SecurityContextHolder.getContext()) {
+                if (shouldFilter(request) && authentication is OAuth2AuthenticationToken) {
+                    val oAuth2AuthenticationToken = authentication as OAuth2AuthenticationToken
+                    val principal = oAuth2AuthenticationToken.principal
+                    val username = principal.name
+                    val registrationId = oAuth2AuthenticationToken.authorizedClientRegistrationId
 
-        with(SecurityContextHolder.getContext()){
-            if(shouldFilter(request) && authentication is OAuth2AuthenticationToken){
-                val oAuth2AuthenticationToken = authentication as OAuth2AuthenticationToken
-                val principal = oAuth2AuthenticationToken.principal
-                val username = principal.name
-                val registrationId = oAuth2AuthenticationToken.authorizedClientRegistrationId
-
-                val userEmail = githubApiClient.getUserEmail(registrationId, username)
-                val userDetails = coAssembleUserDetailService.loadUserByUsername(userEmail)
-                SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.authorities
-                )
+                    val userEmail = githubApiClient.getUserEmail(registrationId, username)
+                    val userDetails = coAssembleUserDetailService.loadUserByUsername(userEmail)
+                    SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.authorities
+                    )
+                }
             }
-        }
 
-        filterChain.doFilter(request, response)
+            filterChain.doFilter(request, response)
+        }
     }
 
 

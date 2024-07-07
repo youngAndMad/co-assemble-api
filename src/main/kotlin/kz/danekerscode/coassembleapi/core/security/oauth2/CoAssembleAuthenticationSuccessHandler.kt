@@ -2,12 +2,13 @@ package kz.danekerscode.coassembleapi.core.security.oauth2
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.OAUTH2_PRINCIPAL_AVATAR_URL
 import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
+import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.user.data.entity.Avatar
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
-import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.user.data.enums.SecurityRole
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import org.slf4j.Logger
@@ -23,6 +24,7 @@ import java.util.*
 class CoAssembleAuthenticationSuccessHandler(
     private val userService: UserService,
     private val githubApiClient: GithubApiClient,
+    private val applicationScope: CoroutineScope
 ) : AuthenticationSuccessHandler {
 
     private val log: Logger = LoggerFactory.getLogger(this.javaClass)
@@ -42,11 +44,11 @@ class CoAssembleAuthenticationSuccessHandler(
         val username = principal.name
         val registrationId = authentication.authorizedClientRegistrationId
 
-        runBlocking {
+        applicationScope.launch launch@{
             val userEmail = githubApiClient.getUserEmail(registrationId, username)
             if (userEmail.isNotBlank()) {
                 log.info("Fetched user email from GitHub API: {}", userEmail)
-                val provider = AuthType.forClientRegistrationId(registrationId) ?: return@runBlocking
+                val provider = AuthType.forClientRegistrationId(registrationId) ?: return@launch
 
                 val userAlreadyExists = userService.existsByEmailAndProvider(userEmail, provider)
 

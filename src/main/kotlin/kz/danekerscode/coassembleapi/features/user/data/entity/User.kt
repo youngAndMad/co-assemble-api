@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Field
 import java.io.Serializable
 
 @Document("users")
-class User(
+data class User(
     @Id
     val id: String? = null,
     var username: String,
@@ -19,8 +19,7 @@ class User(
     var provider: AuthType,
     var emailVerified: Boolean = false,
     var image: Avatar? = null,
-    @Field("techStack") // MongoDB field name
+    @Field
     val techStack: List<TechStackItem> = mutableListOf(),
     var lastLoginAddress: String? = null, // todo check in each login
-) : Serializable {
-}
+) : Serializable

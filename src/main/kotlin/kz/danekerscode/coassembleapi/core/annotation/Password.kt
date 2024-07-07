@@ -18,7 +18,5 @@ annotation class Password(
 )
 
 class PasswordValidator : ConstraintValidator<Password, String> {
-    override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
-        return (value?.length ?: 0) >= 6
-    }
+    override fun isValid(value: String?, context: ConstraintValidatorContext?) = (value?.length ?: 0) >= 6
 }

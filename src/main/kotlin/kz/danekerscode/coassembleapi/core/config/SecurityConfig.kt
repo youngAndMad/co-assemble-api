@@ -1,6 +1,6 @@
 package kz.danekerscode.coassembleapi.core.config
 
-import kz.danekerscode.coassembleapi.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
+import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
 import kz.danekerscode.coassembleapi.core.security.CoAssembleAuthFilter
 import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleAuthenticationSuccessHandler
 import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleAuthorizationRequestRepository
