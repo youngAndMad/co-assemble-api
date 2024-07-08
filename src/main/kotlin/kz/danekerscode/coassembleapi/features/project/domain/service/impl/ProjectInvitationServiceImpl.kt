@@ -7,6 +7,7 @@ import kz.danekerscode.coassembleapi.features.project.data.entity.ProjectInvitat
 import kz.danekerscode.coassembleapi.features.project.data.enums.ProjectInvitationStatus
 import kz.danekerscode.coassembleapi.features.project.data.repository.ProjectInvitationRepository
 import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectInvitationService
+import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectMemberService
 import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectService
 import kz.danekerscode.coassembleapi.features.project.representation.dto.ProjectMemberAction
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Repository
 class ProjectInvitationServiceImpl(
     private val projectInvitationRepository: ProjectInvitationRepository,
     private val userService: UserService,
-    private val projectService: ProjectService
+    private val projectService: ProjectService,
+    private val projectMemberService: ProjectMemberService
 ) : ProjectInvitationService {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -54,6 +56,8 @@ class ProjectInvitationServiceImpl(
             projectInvitationRepository.save(it)
 
             log.info("User ${currentUser.user.email} accepted invitation to project $projectId")
+
+            projectMemberService.addProjectMember(currentUser.user, it.project)
         }
         // todo send notification to project owner about new member
     }

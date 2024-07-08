@@ -9,7 +9,7 @@ object Base64Utils {
 
     fun encodeToString(input: String): String = encodeToString(input.toByteArray())
 
-    fun encodeToString(input: ByteArray?): String = Base64.getEncoder().encodeToString(input)
+    private fun encodeToString(input: ByteArray?): String = Base64.getEncoder().encodeToString(input)
 
     fun decodeToString(input: String): String = String(Base64.getDecoder().decode(input))
 
