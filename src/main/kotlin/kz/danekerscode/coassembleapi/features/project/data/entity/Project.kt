@@ -11,7 +11,7 @@ data class Project(
     var name: String,
     var goal: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    var finished: Boolean = false,
+    var paused: Boolean = false,
     @ReadOnlyProperty
     @DBRef
     val owner: User,

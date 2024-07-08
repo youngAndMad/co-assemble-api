@@ -1,10 +1,7 @@
 package kz.danekerscode.coassembleapi.core.config
 
 import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
-import kz.danekerscode.coassembleapi.core.security.CoAssembleAuthFilter
-import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleAuthenticationSuccessHandler
-import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleAuthorizationRequestRepository
-import kz.danekerscode.coassembleapi.core.security.oauth2.CoAssembleLogoutSuccessHandler
+import kz.danekerscode.coassembleapi.core.security.oauth2.*
 import kz.danekerscode.coassembleapi.utils.isRunningInLocal
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
@@ -22,15 +19,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.context.SecurityContextRepository
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig (
+class SecurityConfig(
     private val env: Environment
-){
+) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()

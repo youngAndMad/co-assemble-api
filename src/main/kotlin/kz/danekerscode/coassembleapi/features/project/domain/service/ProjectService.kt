@@ -13,4 +13,6 @@ interface ProjectService {
     ): IdResult
 
     suspend fun findProject(id: String): Project
+
+    suspend fun toggleProjectFinished(project: Project)
 }

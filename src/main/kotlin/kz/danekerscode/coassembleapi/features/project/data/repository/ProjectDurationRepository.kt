@@ -4,4 +4,5 @@ import kz.danekerscode.coassembleapi.features.project.data.entity.ProjectDuratio
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface ProjectDurationRepository: CoroutineCrudRepository<ProjectDuration, String> {
+    
 }

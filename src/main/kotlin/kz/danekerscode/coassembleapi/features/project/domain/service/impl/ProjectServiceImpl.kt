@@ -38,4 +38,12 @@ class ProjectServiceImpl(
     }
 
     override suspend fun findProject(id: String) = projectRepository.safeFindById(id)
+
+    override suspend fun toggleProjectFinished(project: Project): Unit =
+        project.apply {
+            paused = !paused
+            projectRepository.save(this)
+        }.run {
+            log.info("Toggled project paused status for project with id: $id")
+        }
 }
