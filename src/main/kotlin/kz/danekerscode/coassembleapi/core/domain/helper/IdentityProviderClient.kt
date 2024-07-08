@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.core.helper
+package kz.danekerscode.coassembleapi.core.domain.helper
 
 /**
  * Interface for fetching user email from identity provider

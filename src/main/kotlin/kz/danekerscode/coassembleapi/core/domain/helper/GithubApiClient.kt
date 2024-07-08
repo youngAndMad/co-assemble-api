@@ -1,4 +1,4 @@
-package kz.danekerscode.coassembleapi.core.helper
+package kz.danekerscode.coassembleapi.core.domain.helper
 
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient

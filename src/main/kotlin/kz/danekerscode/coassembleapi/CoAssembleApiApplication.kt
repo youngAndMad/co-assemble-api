@@ -6,13 +6,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kz.danekerscode.coassembleapi.core.config.properties.CoAssembleProperties
+import kz.danekerscode.coassembleapi.core.database.mongo.SoftDeleteMongoRepositoryFactoryBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 @SpringBootApplication
+@EnableMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean::class)
 @OpenAPIDefinition(info = Info(title = "CoAssemble API"))
 @EnableConfigurationProperties(CoAssembleProperties::class)
 class CoAssembleApiApplication

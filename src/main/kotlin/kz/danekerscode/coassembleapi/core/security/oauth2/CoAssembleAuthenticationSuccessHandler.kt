@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.OAUTH2_PRINCIPAL_AVATAR_URL
-import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
+import kz.danekerscode.coassembleapi.core.domain.helper.IdentityProviderClient
 import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.user.data.entity.Avatar
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
@@ -23,7 +23,7 @@ import java.util.*
 @Component
 class CoAssembleAuthenticationSuccessHandler(
     private val userService: UserService,
-    private val githubApiClient: GithubApiClient,
+    private val githubApiClient: IdentityProviderClient,
     private val applicationScope: CoroutineScope
 ) : AuthenticationSuccessHandler {
 

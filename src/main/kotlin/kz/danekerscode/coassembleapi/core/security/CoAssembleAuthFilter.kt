@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kz.danekerscode.coassembleapi.core.config.CoAssembleConstants.Companion.INSECURE_ENDPOINTS
-import kz.danekerscode.coassembleapi.core.helper.GithubApiClient
+import kz.danekerscode.coassembleapi.core.domain.helper.GithubApiClient
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher
 import org.springframework.security.web.util.matcher.OrRequestMatcher
-import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 //@Component
@@ -24,8 +23,8 @@ class CoAssembleAuthFilter(
     private val applicationScope: CoroutineScope
 ) : OncePerRequestFilter() {
 
-    private final val matchers = INSECURE_ENDPOINTS.map { AntPathRequestMatcher(it) }
-    val negatedMatcher = NegatedRequestMatcher(OrRequestMatcher(matchers))
+    private val matchers = INSECURE_ENDPOINTS.map { AntPathRequestMatcher(it) }
+    private val negatedMatcher = NegatedRequestMatcher(OrRequestMatcher(matchers))
 
     override fun doFilterInternal(
         request: HttpServletRequest,

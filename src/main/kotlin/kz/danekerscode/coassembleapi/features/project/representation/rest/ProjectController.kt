@@ -24,4 +24,9 @@ class ProjectController(
         @AuthenticationPrincipal currentUser: CoAssembleUserDetails
     ) = projectService.createProject(createProjectRequest, currentUser)
 
+    @GetMapping("{id}")
+    @Operation(summary = "Find project by id")
+    suspend fun findProject(@PathVariable id: String) = projectService.findProject(id)
+
+//    suspend fun deleteProject(id: String) = projectService.deleteProject(id)
 }
