@@ -10,5 +10,5 @@ data class ProjectDuration(
     @DBRef
     var project: Project,
     var start: LocalDate,
-    var finish: LocalDate
+    var finish: LocalDate? = null
 )

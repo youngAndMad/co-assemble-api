@@ -3,6 +3,7 @@ package kz.danekerscode.coassembleapi.features.project.representation.rest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
+import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectDurationService
 import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectService
 import kz.danekerscode.coassembleapi.features.project.representation.dto.CreateProjectRequest
 import org.springframework.http.HttpStatus
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Projects")
 @RequestMapping("/api/v1/projects")
 class ProjectController(
-    private val projectService: ProjectService
+    private val projectService: ProjectService,
+    private val projectDurationService: ProjectDurationService
 ) {
 
     @PostMapping
@@ -27,6 +29,10 @@ class ProjectController(
     @GetMapping("{id}")
     @Operation(summary = "Find project by id")
     suspend fun findProject(@PathVariable id: String) = projectService.findProject(id)
+
+    @PatchMapping("{id}/status")
+    @Operation(summary = "Toggle project status")
+    suspend fun toggleProjectStatus(@PathVariable id: String) = projectDurationService.toggleProjectDuration(id)
 
 //    suspend fun deleteProject(id: String) = projectService.deleteProject(id)
 }
