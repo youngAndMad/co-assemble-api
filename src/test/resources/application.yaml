@@ -1,0 +1,7 @@
+spring:
+  data:
+    mongodb:
+      database: coassemble
+      port: ${mongodb.container.port}
+      host: localhost
+      auto-index-creation: true
