@@ -2,9 +2,11 @@ package kz.danekerscode.coassembleapi.features.user.representation.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.core.representation.dto.IdResult
 import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserFollowingService
+import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserFollowingCount
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -57,4 +59,30 @@ class UserFollowingController(
     suspend fun getFollowingCount(
         @PathVariable userId: String,
     ): UserFollowingCount = userFollowingService.getUserFollowingCount(userId)
+
+    /**
+     * Endpoint for getting user followings
+     * @param userId User ID to get followings for
+     * @return [UserDto] Flow of user followings
+     * @see UserDto for user representation
+     * @see Flow for asynchronous data stream
+     */
+    @GetMapping
+    @Operation(summary = "Get user followings")
+    fun getUserFollowings(
+        @PathVariable userId: String,
+    ): Flow<UserDto> = userFollowingService.getUserFollowing(userId)
+
+    /**
+     * Endpoint for getting user followers
+     * @param userId User ID to get followers for
+     * @return [UserDto] Flow of user followers
+     * @see UserDto for user representation
+     * @see Flow for asynchronous data stream
+     */
+    @GetMapping("/followers")
+    @Operation(summary = "Get user followers")
+    fun getUserFollowers(
+        @PathVariable userId: String,
+    ): Flow<UserDto> = userFollowingService.getUserFollowers(userId)
 }

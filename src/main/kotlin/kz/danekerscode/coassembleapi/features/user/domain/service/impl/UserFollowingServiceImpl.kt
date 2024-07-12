@@ -1,12 +1,16 @@
 package kz.danekerscode.coassembleapi.features.user.domain.service.impl
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kz.danekerscode.coassembleapi.core.domain.errors.InvalidRequestPayloadException
 import kz.danekerscode.coassembleapi.core.representation.dto.IdResult
 import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.user.data.entity.UserFollowing
+import kz.danekerscode.coassembleapi.features.user.data.mapper.UserMapper
 import kz.danekerscode.coassembleapi.features.user.data.repository.UserFollowingRepository
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserFollowingService
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
+import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserFollowingCount
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service
 class UserFollowingServiceImpl(
     private val userFollowingRepository: UserFollowingRepository,
     private val userService: UserService,
+    private val userMapper: UserMapper
 ) : UserFollowingService {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -65,4 +70,18 @@ class UserFollowingServiceImpl(
             followingCount = userFollowingRepository.countAllByRequesterId(userId),
             followersCount = userFollowingRepository.countAllByAddresseeId(userId),
         )
+
+    override fun getUserFollowers(userId: String): Flow<UserDto> =
+        userFollowingRepository.findAllByAddresseeId(userId).let {
+            it.map { userFollowing ->
+                userMapper.toUserDto(userFollowing.requester)
+            }
+        }
+
+    override fun getUserFollowing(userId: String): Flow<UserDto> =
+        userFollowingRepository.findAllByRequesterId(userId).let {
+            it.map { userFollowing ->
+                userMapper.toUserDto(userFollowing.requester)
+            }
+        }
 }

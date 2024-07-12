@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.user.data.repository
 
+import kotlinx.coroutines.flow.Flow
 import kz.danekerscode.coassembleapi.features.user.data.entity.UserFollowing
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
@@ -47,4 +48,22 @@ interface UserFollowingRepository : CoroutineCrudRepository<UserFollowing, Strin
      * 12.07.2024
      */
     suspend fun countAllByAddresseeId(addresseeId: String): Int
+
+    /**
+     * Find all by requesterId
+     * @param requesterId
+     * @return [Flow] of [UserFollowing]
+     * @author Daneker
+     * 12.07.2024
+     */
+    fun findAllByRequesterId(requesterId: String): Flow<UserFollowing>
+
+    /**
+     * Find all by addresseeId
+     * @param addresseeId
+     * @return [Flow] of [UserFollowing]
+     * @author Daneker
+     * 12.07.2024
+     */
+    fun findAllByAddresseeId(addresseeId: String): Flow<UserFollowing>
 }
