@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <springProfile name="prod-logging">
+        <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp/>
+                    <version/>
+                    <message/>
+                    <rawMessage/>
+                    <loggerName/>
+                    <threadName/>
+                    <logLevel/>
+                    <logLevelValue/>
+                    <stackTrace/>
+                    <tags/>
+                    <logstashMarkers/>
+                    <mdc>
+                        <excludeMdcKeyName>X-B3-SpanId</excludeMdcKeyName>
+                        <excludeMdcKeyName>X-B3-TraceId</excludeMdcKeyName>
+                        <excludeMdcKeyName>X-Span-Export</excludeMdcKeyName>
+                        <excludeMdcKeyName>spanExportable</excludeMdcKeyName>
+                        <excludeMdcKeyName>spanId</excludeMdcKeyName>
+                    </mdc>
+                    <arguments/>
+                </providers>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="json"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!prod-logging">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+</configuration>

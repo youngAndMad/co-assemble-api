@@ -40,7 +40,7 @@ class AuthServiceImpl(
     private val verificationTokenService: VerificationTokenService,
     private val eventBus: ApplicationEventPublisher,
 ) : AuthService {
-    private var log = LoggerFactory.getLogger(this::class.java)
+    private var log = LoggerFactory.getLogger(javaClass)
 
     override suspend fun login(
         loginRequest: LoginRequest,

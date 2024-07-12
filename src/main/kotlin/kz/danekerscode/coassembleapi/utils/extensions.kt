@@ -18,14 +18,13 @@ suspend fun <T : Any, ID : Any> CoroutineCrudRepository<T, ID>.safeFindById(id: 
         id.toString(),
     )
 
-suspend inline fun <reified T : Any, ID : Any> CoroutineCrudRepository<T, ID>.safeDelete(id: ID)  {
-    if (!this.existsById(id))
-        {
-            throw EntityNotFoundException(
-                T::class.java,
-                id.toString(),
-            )
-        }
+suspend inline fun <reified T : Any, ID : Any> CoroutineCrudRepository<T, ID>.safeDelete(id: ID) {
+    if (!this.existsById(id)) {
+        throw EntityNotFoundException(
+            T::class.java,
+            id.toString(),
+        )
+    }
     this.deleteById(id)
 }
 
