@@ -27,6 +27,7 @@ class SoftDeleteMongoQueryLookupStrategy(
         factory: ProjectionFactory,
         namedQueries: NamedQueries
     ): RepositoryQuery {
+        println(method.name)
         val repositoryQuery: RepositoryQuery = strategy.resolveQuery(method, metadata, factory, namedQueries)
 
         if (method.getAnnotation(SeesSoftlyDeletedRecords::class.java) != null

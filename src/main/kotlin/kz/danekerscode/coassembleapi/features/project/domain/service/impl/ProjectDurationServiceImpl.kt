@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.project.domain.service.impl
 
+import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.project.data.entity.Project
 import kz.danekerscode.coassembleapi.features.project.data.entity.ProjectDuration
 import kz.danekerscode.coassembleapi.features.project.data.repository.ProjectDurationRepository
@@ -17,16 +18,22 @@ class ProjectDurationServiceImpl(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun toggleProjectDuration(projectId: String) {
+    override suspend fun toggleProjectDuration(
+        projectId: String,
+        currentUser: CoAssembleUserDetails
+    ) {
         log.info("Toggling project duration for project with id: $projectId")
 
         projectService.findProject(projectId)
             .let {
+                it.checkOwner(currentUser)
+
                 if (!it.paused) {
                     pauseProject(it)
                 } else {
                     createNewProjectDuration(it)
                 }
+
                 projectService.toggleProjectFinished(it)
             }
     }

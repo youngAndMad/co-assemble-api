@@ -25,11 +25,7 @@ class ProjectServiceImpl(
         createProjectRequest: CreateProjectRequest,
         currentUser: CoAssembleUserDetails
     ): IdResult {
-        val project = Project(
-            owner = currentUser.user,
-            goal = createProjectRequest.goal,
-            name = createProjectRequest.name,
-        )
+        val project = createProject(currentUser, createProjectRequest)
 
         return projectRepository.save(project).run {
             log.info("Created new project by ${currentUser.user.email} with id $id")
@@ -46,4 +42,20 @@ class ProjectServiceImpl(
         }.run {
             log.info("Toggled project paused status for project with id: $id")
         }
+
+    override suspend fun deleteProject(id: String, currentUser: CoAssembleUserDetails) {
+        findProject(id).also {
+            it.checkOwner(currentUser)
+            projectRepository.delete(it)
+        }
+    }
+
+    private fun createProject(
+        currentUser: CoAssembleUserDetails,
+        createProjectRequest: CreateProjectRequest
+    ) = Project(
+        owner = currentUser.user,
+        goal = createProjectRequest.goal,
+        name = createProjectRequest.name,
+    )
 }

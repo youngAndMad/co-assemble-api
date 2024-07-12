@@ -15,4 +15,6 @@ interface ProjectService {
     suspend fun findProject(id: String): Project
 
     suspend fun toggleProjectFinished(project: Project)
+
+    suspend fun deleteProject(id: String, currentUser: CoAssembleUserDetails)
 }
