@@ -4,5 +4,5 @@ enum class ProjectInvitationStatus {
     PENDING,
     ACCEPTED,
     REJECTED,
-    CANCELED
+    CANCELED,
 }

@@ -8,12 +8,12 @@ import java.util.*
 
 @Component
 class UserAuditing : AuditorAware<String> {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun getCurrentAuditor(): Optional<String> = Optional
-        .of(SecurityContextHolder.getContext()?.authentication?.name ?: "anonymous")
-        .apply {
-            log.debug("Current auditor: {}", this.get())
-        }
+    override fun getCurrentAuditor(): Optional<String> =
+        Optional
+            .of(SecurityContextHolder.getContext()?.authentication?.name ?: "anonymous")
+            .apply {
+                log.debug("Current auditor: {}", this.get())
+            }
 }

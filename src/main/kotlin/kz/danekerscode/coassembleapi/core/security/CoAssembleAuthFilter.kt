@@ -16,20 +16,19 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher
 import org.springframework.security.web.util.matcher.OrRequestMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 
-//@Component
+// @Component
 class CoAssembleAuthFilter(
     private val githubApiClient: GithubApiClient,
     private val coAssembleUserDetailService: UserDetailsService,
-    private val applicationScope: CoroutineScope
+    private val applicationScope: CoroutineScope,
 ) : OncePerRequestFilter() {
-
     private val matchers = INSECURE_ENDPOINTS.map { AntPathRequestMatcher(it) }
     private val negatedMatcher = NegatedRequestMatcher(OrRequestMatcher(matchers))
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) { // todo delete blocking
         applicationScope.launch {
             with(SecurityContextHolder.getContext()) {
@@ -41,11 +40,12 @@ class CoAssembleAuthFilter(
 
                     val userEmail = githubApiClient.getUserEmail(registrationId, username)
                     val userDetails = coAssembleUserDetailService.loadUserByUsername(userEmail)
-                    SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.authorities
-                    )
+                    SecurityContextHolder.getContext().authentication =
+                        UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.authorities,
+                        )
                 }
             }
 
@@ -53,7 +53,5 @@ class CoAssembleAuthFilter(
         }
     }
 
-    private fun shouldFilter(request: HttpServletRequest): Boolean =
-        negatedMatcher.matches(request)
-
+    private fun shouldFilter(request: HttpServletRequest): Boolean = negatedMatcher.matches(request)
 }

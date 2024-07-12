@@ -14,9 +14,12 @@ import kotlin.reflect.KClass
 annotation class Password(
     val message: String = "Password must be at least 6 characters long",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = []
+    val payload: Array<KClass<out Payload>> = [],
 )
 
 class PasswordValidator : ConstraintValidator<Password, String> {
-    override fun isValid(value: String?, context: ConstraintValidatorContext?) = (value?.length ?: 0) >= 6
+    override fun isValid(
+        value: String?,
+        context: ConstraintValidatorContext?,
+    ) = (value?.length ?: 0) >= 6
 }

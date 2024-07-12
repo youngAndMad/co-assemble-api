@@ -1,9 +1,9 @@
 package kz.danekerscode.coassembleapi.utils
 
 import com.mongodb.BasicDBObject
-import kz.danekerscode.coassembleapi.features.techstackitem.representation.dto.TechStackItemDto
-import kz.danekerscode.coassembleapi.features.techstackitem.data.entity.TechStackItem
 import kz.danekerscode.coassembleapi.core.domain.errors.EntityNotFoundException
+import kz.danekerscode.coassembleapi.features.techstackitem.data.entity.TechStackItem
+import kz.danekerscode.coassembleapi.features.techstackitem.representation.dto.TechStackItemDto
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -13,17 +13,19 @@ suspend fun <T : Any, ID : Any> CoroutineCrudRepository<T, ID>.safeFindById(id: 
     this.findById(id) ?: throw EntityNotFoundException(
         GenericTypeResolver.resolveGenericClassAt(
             this::class.java,
-            MongoRepository::class.java
-        ), id.toString()
+            MongoRepository::class.java,
+        ),
+        id.toString(),
     )
 
-suspend inline fun <reified T:Any,ID:Any> CoroutineCrudRepository<T,ID>.safeDelete(id:ID){
-    if(!this.existsById(id)){
-        throw EntityNotFoundException(
+suspend inline fun <reified T : Any, ID : Any> CoroutineCrudRepository<T, ID>.safeDelete(id: ID)  {
+    if (!this.existsById(id))
+        {
+            throw EntityNotFoundException(
                 T::class.java,
-               id.toString()
-        )
-    }
+                id.toString(),
+            )
+        }
     this.deleteById(id)
 }
 
@@ -37,11 +39,12 @@ fun MultipartFile.basicDbObject(): BasicDBObject {
     }
 }
 
-fun TechStackItemDto.toEntity() = TechStackItem(
-    name = this.name,
-    description = this.description,
-    type = this.type
-)
+fun TechStackItemDto.toEntity() =
+    TechStackItem(
+        name = this.name,
+        description = this.description,
+        type = this.type,
+    )
 
 fun TechStackItemDto.copyToEntity(item: TechStackItem) {
     val it = this

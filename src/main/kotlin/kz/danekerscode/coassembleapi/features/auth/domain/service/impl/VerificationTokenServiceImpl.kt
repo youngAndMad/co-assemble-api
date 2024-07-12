@@ -15,9 +15,8 @@ import java.util.*
 @Service
 class VerificationTokenServiceImpl(
     private val verificationTokenRepository: VerificationTokenRepository,
-    private val coAssembleProperties: CoAssembleProperties
+    private val coAssembleProperties: CoAssembleProperties,
 ) : VerificationTokenService {
-
     override suspend fun revokeById(id: String): Unit =
         verificationTokenRepository.safeFindById(id)
             .let {
@@ -30,7 +29,7 @@ class VerificationTokenServiceImpl(
     override suspend fun findByValueAndUserEmail(
         value: String,
         userEmail: String,
-        type: VerificationTokenType
+        type: VerificationTokenType,
     ): VerificationToken {
         return verificationTokenRepository
             .findByValueAndUserEmailAndType(Base64Utils.decodeToString(value), userEmail, type)
@@ -38,17 +37,21 @@ class VerificationTokenServiceImpl(
                 VerificationToken::class.java,
                 Pair("type", type),
                 Pair("userEmail", userEmail),
-                Pair("value", value)
+                Pair("value", value),
             )
     }
 
-    override suspend fun generateForUser(userEmail: String, type: VerificationTokenType): VerificationToken {
-        val verificationToken = VerificationToken(
-            value = generateToken(),
-            userEmail = userEmail,
-            type = type,
-            expireDate = LocalDateTime.now().plus(coAssembleProperties.verificationTokenTtl)
-        )
+    override suspend fun generateForUser(
+        userEmail: String,
+        type: VerificationTokenType,
+    ): VerificationToken {
+        val verificationToken =
+            VerificationToken(
+                value = generateToken(),
+                userEmail = userEmail,
+                type = type,
+                expireDate = LocalDateTime.now().plus(coAssembleProperties.verificationTokenTtl),
+            )
 
         return save(verificationToken)
             .apply {
@@ -56,10 +59,11 @@ class VerificationTokenServiceImpl(
             }
     }
 
-    override suspend fun revokeForUserByType(userEmail: String, type: VerificationTokenType) =
-        verificationTokenRepository.findAllByUserEmailAndType(userEmail, type)
-            .collect { it.id?.let { id -> this.revokeById(id) } }
+    override suspend fun revokeForUserByType(
+        userEmail: String,
+        type: VerificationTokenType,
+    ) = verificationTokenRepository.findAllByUserEmailAndType(userEmail, type)
+        .collect { it.id?.let { id -> this.revokeById(id) } }
 
     private fun generateToken(): String = UUID.randomUUID().toString()
-
 }

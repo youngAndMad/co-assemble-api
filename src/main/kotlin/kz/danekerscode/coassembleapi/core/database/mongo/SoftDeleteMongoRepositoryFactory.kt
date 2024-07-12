@@ -7,24 +7,22 @@ import org.springframework.data.repository.query.QueryMethodEvaluationContextPro
 import java.util.*
 
 class SoftDeleteMongoRepositoryFactory(
-    private val mongoOperations: MongoOperations
+    private val mongoOperations: MongoOperations,
 ) : MongoRepositoryFactory(mongoOperations) {
-
     override fun getQueryLookupStrategy(
         key: QueryLookupStrategy.Key?,
-        evaluationContextProvider: QueryMethodEvaluationContextProvider
+        evaluationContextProvider: QueryMethodEvaluationContextProvider,
     ): Optional<QueryLookupStrategy> {
-        val queryLookupStrategy = super.getQueryLookupStrategy(
-            key,
-            evaluationContextProvider
-        )
+        val queryLookupStrategy =
+            super.getQueryLookupStrategy(
+                key,
+                evaluationContextProvider,
+            )
         return Optional.of(createSoftDeleteQueryLookupStrategy(queryLookupStrategy.get(), evaluationContextProvider))
     }
 
     private fun createSoftDeleteQueryLookupStrategy(
         strategy: QueryLookupStrategy,
-        evaluationContextProvider: QueryMethodEvaluationContextProvider
-    ): SoftDeleteMongoQueryLookupStrategy =
-        SoftDeleteMongoQueryLookupStrategy(strategy, mongoOperations, evaluationContextProvider)
-
+        evaluationContextProvider: QueryMethodEvaluationContextProvider,
+    ): SoftDeleteMongoQueryLookupStrategy = SoftDeleteMongoQueryLookupStrategy(strategy, mongoOperations, evaluationContextProvider)
 }

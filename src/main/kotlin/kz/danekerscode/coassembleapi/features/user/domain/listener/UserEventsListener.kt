@@ -11,9 +11,8 @@ import org.springframework.stereotype.Component
 @Component
 class UserEventsListener(
     private val userService: UserService,
-    private val applicationScope: CoroutineScope
+    private val applicationScope: CoroutineScope,
 ) {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     @EventListener
@@ -26,5 +25,4 @@ class UserEventsListener(
                 log.info("User last login address updated: ${it.email} -> ${it.lastLoginAddress}")
             }
         }
-
 }

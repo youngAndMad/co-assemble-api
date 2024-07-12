@@ -5,25 +5,23 @@ import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.project.representation.dto.ProjectMemberAction
 
 interface ProjectInvitationService {
-
     suspend fun inviteMember(
         actionPayload: ProjectMemberAction,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ): IdResult
 
     suspend fun acceptInvitation(
         projectId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     )
 
     suspend fun rejectInvitation(
         projectId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     )
 
     suspend fun cancelInvitation(
         invitationId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     )
-
 }

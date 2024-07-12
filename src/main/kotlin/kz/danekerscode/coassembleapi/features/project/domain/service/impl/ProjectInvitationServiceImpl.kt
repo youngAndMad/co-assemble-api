@@ -20,23 +20,23 @@ class ProjectInvitationServiceImpl(
     private val projectInvitationRepository: ProjectInvitationRepository,
     private val userService: UserService,
     private val projectService: ProjectService,
-    private val projectMemberService: ProjectMemberService
+    private val projectMemberService: ProjectMemberService,
 ) : ProjectInvitationService {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     override suspend fun inviteMember(
         actionPayload: ProjectMemberAction,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ): IdResult {
         log.info("Inviting user ${actionPayload.userId} to project ${actionPayload.projectId}")
         val invitedUser = userService.findById(actionPayload.userId)
         val project = projectService.findProject(actionPayload.projectId)
 
-        val projectInvitation = ProjectInvitation(
-            project = project,
-            user = invitedUser,
-        )
+        val projectInvitation =
+            ProjectInvitation(
+                project = project,
+                user = invitedUser,
+            )
 
         return save(projectInvitation).run {
             log.info("Invited user ${invitedUser.email} to project ${project.name}")
@@ -47,7 +47,7 @@ class ProjectInvitationServiceImpl(
 
     override suspend fun acceptInvitation(
         projectId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ) {
         log.info("User ${currentUser.user.email} accepted invitation to project $projectId")
 
@@ -64,10 +64,9 @@ class ProjectInvitationServiceImpl(
 
     override suspend fun rejectInvitation(
         projectId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ) {
         log.info("User ${currentUser.user.email} rejected invitation to project $projectId")
-
 
         getProjectInvitation(projectId, currentUser).let {
             it.status = ProjectInvitationStatus.REJECTED
@@ -81,7 +80,7 @@ class ProjectInvitationServiceImpl(
 
     override suspend fun cancelInvitation(
         invitationId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ) {
         log.info("User ${currentUser.user.email} canceled invitation $invitationId")
 
@@ -94,14 +93,13 @@ class ProjectInvitationServiceImpl(
 
     private suspend fun getProjectInvitation(
         projectId: String,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ) = projectInvitationRepository
         .findByProjectIdAndUserId(projectId, currentUser.user.id!!) ?: throw EntityNotFoundException(
-        ProjectInvitation::class.java, Pair("projectId", projectId), Pair(
+        ProjectInvitation::class.java, Pair("projectId", projectId),
+        Pair(
             "userId",
-            currentUser.user.id
-        )
+            currentUser.user.id,
+        ),
     )
-
-
 }

@@ -10,5 +10,5 @@ data class RegistrationRequest(
     @field:Password
     val password: String,
     @field:Email
-    val email: String
+    val email: String,
 )

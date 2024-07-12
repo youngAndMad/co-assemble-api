@@ -17,9 +17,8 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/api/v1/users")
 class UserController(
     private val userService: UserService,
-    private val userMapper: UserMapper
+    private val userMapper: UserMapper,
 ) {
-
     /**
      * Endpoint for uploading user avatar
      * @param currentUser Current authenticated user. Will be injected by Spring Security
@@ -32,7 +31,7 @@ class UserController(
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun uploadAvatar(
         @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
-        @RequestParam avatar: MultipartFile
+        @RequestParam avatar: MultipartFile,
     ) = userService.uploadAvatar(currentUser, avatar)
 
     /**
@@ -46,7 +45,7 @@ class UserController(
     @DeleteMapping("/avatar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun deleteAvatar(
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = userService.deleteAvatar(currentUser)
 
     /**
@@ -58,7 +57,9 @@ class UserController(
      */
     @Operation(summary = "Filter users")
     @PostMapping("/filter")
-    suspend fun filterUsers(@RequestBody criteria: UserSearchCriteria) = userService.filterUsers(criteria)
+    suspend fun filterUsers(
+        @RequestBody criteria: UserSearchCriteria,
+    ) = userService.filterUsers(criteria)
 
     /**
      * Endpoint for getting current authenticated user
@@ -70,6 +71,7 @@ class UserController(
      */
     @Operation(summary = "Get current user")
     @GetMapping("/me")
-    suspend fun getMe(@AuthenticationPrincipal currentUser: CoAssembleUserDetails): UserDto =
-        userMapper.toUserDto(currentUser.user)
+    suspend fun getMe(
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
+    ): UserDto = userMapper.toUserDto(currentUser.user)
 }

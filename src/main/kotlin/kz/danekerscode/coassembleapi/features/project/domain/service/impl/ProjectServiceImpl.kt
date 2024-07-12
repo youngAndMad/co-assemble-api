@@ -17,14 +17,13 @@ import org.springframework.stereotype.Service
 class ProjectServiceImpl(
     private val projectRepository: ProjectRepository,
     private val eventBus: ApplicationEventPublisher,
-    private val userService: UserService
+    private val userService: UserService,
 ) : ProjectService {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     override suspend fun createProject(
         createProjectRequest: CreateProjectRequest,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ): IdResult {
         val project = createProject(currentUser, createProjectRequest)
 
@@ -44,7 +43,10 @@ class ProjectServiceImpl(
             log.info("Toggled project paused status for project with id: $id")
         }
 
-    override suspend fun deleteProject(id: String, currentUser: CoAssembleUserDetails) {
+    override suspend fun deleteProject(
+        id: String,
+        currentUser: CoAssembleUserDetails,
+    ) {
         findProject(id).also {
             it.checkOwner(currentUser)
             projectRepository.delete(it)
@@ -54,13 +56,14 @@ class ProjectServiceImpl(
     override suspend fun updateProject(
         id: String,
         updateProjectRequest: UpdateProjectRequest,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ) {
-        val project = findProject(id).apply {
-            checkOwner(currentUser)
-            goal = updateProjectRequest.goal
-            name = updateProjectRequest.name
-        }
+        val project =
+            findProject(id).apply {
+                checkOwner(currentUser)
+                goal = updateProjectRequest.goal
+                name = updateProjectRequest.name
+            }
 
         projectRepository.save(project).also {
             log.info("Updated project with id: $id by ${currentUser.user.email}")
@@ -69,7 +72,7 @@ class ProjectServiceImpl(
 
     private fun createProject(
         currentUser: CoAssembleUserDetails,
-        createProjectRequest: CreateProjectRequest
+        createProjectRequest: CreateProjectRequest,
     ) = Project(
         owner = currentUser.user,
         goal = createProjectRequest.goal,

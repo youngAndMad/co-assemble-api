@@ -5,5 +5,4 @@ import kz.danekerscode.coassembleapi.features.techstackitem.data.enums.TechStack
 data class UserSearchCriteria(
     val keyword: String? = null,
     val stackItemType: TechStackItemType? = null,
-
-    )
+)

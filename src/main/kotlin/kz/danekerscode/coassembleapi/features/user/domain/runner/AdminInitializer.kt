@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component
 class AdminInitializer(
     private val coAssembleProperties: CoAssembleProperties,
     private val userService: UserService,
-    private val applicationScope: CoroutineScope
+    private val applicationScope: CoroutineScope,
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments?) {
         applicationScope.launch {
             userService.createAdmin(
                 coAssembleProperties.adminEmail,
-                coAssembleProperties.adminPassword
+                coAssembleProperties.adminPassword,
             )
         }
     }

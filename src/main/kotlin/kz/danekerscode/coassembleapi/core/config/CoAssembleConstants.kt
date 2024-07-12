@@ -7,19 +7,19 @@ class CoAssembleConstants {
         const val OAUTH2_PRINCIPAL_AVATAR_URL = "avatar_url"
         const val USER = "user"
 
-        val INSECURE_ENDPOINTS = arrayOf(
-            "/error",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/api-docs/**",
-            "/api/v1/auth/register",
-            "/api/v1/auth/login",
-            "/api/v1/auth/forgot-password/request/**",
-            "/api/v1/auth/verify-email/**",
-            "/api/v1/auth/resend-email/**",
-            "/oauth2/**",
-            "/swagger-ui.html",
-        )
-
+        val INSECURE_ENDPOINTS =
+            arrayOf(
+                "/error",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/api-docs/**",
+                "/api/v1/auth/register",
+                "/api/v1/auth/login",
+                "/api/v1/auth/forgot-password/request/**",
+                "/api/v1/auth/verify-email/**",
+                "/api/v1/auth/resend-email/**",
+                "/oauth2/**",
+                "/swagger-ui.html",
+            )
     }
 }

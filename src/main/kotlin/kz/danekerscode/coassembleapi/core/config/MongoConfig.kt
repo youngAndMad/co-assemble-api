@@ -10,7 +10,6 @@ import java.util.*
 @Configuration
 @EnableMongoAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
 class MongoConfig {
-
     /**
      * With this configuration in place, we can now enable [@CreatedDate] and [@LastModifiedDate] on our documents
      * We also need a @Version field in our documents, otherwise there will be problems in combination with the Id field.
@@ -21,6 +20,4 @@ class MongoConfig {
      */
     @Bean(name = ["auditingDateTimeProvider"])
     fun dateTimeProvider(): DateTimeProvider = DateTimeProvider { Optional.of(LocalDateTime.now()) }
-
-
 }

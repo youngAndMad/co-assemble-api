@@ -13,16 +13,19 @@ class GithubApiClient(
     private var authorizedClientService: OAuth2AuthorizedClientService,
     private var githubWebClient: RestClient,
 ) : IdentityProviderClient {
-
     /**
      * Fetch user email from identity provider
      * @param clientRegistrationId - client registration id
      * @param principalName - principal name
      * */
     @Cacheable(key = "{#clientRegistrationId, #principalName}", value = ["github-user-email"])
-    override suspend fun getUserEmail(clientRegistrationId: String, principalName: String): String {
-        val authorizedClient = authorizedClientService
-            .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, principalName)
+    override suspend fun getUserEmail(
+        clientRegistrationId: String,
+        principalName: String,
+    ): String {
+        val authorizedClient =
+            authorizedClientService
+                .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, principalName)
         val accessToken = authorizedClient.accessToken.tokenValue
 
         return githubWebClient

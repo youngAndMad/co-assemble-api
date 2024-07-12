@@ -15,7 +15,7 @@ class VerificationToken(
     private val expireDate: LocalDateTime,
     val userEmail: String,
     val used: Boolean = false,
-    var enabled: Boolean = true
+    var enabled: Boolean = true,
 ) : BaseEntity() {
     private fun isExpired(): Boolean {
         return expireDate.isBefore(LocalDateTime.now())
@@ -25,7 +25,7 @@ class VerificationToken(
         if (isExpired() || !enabled) {
             throw AuthProcessingException(
                 "Verification token expired",
-                HttpStatus.BAD_REQUEST
+                HttpStatus.BAD_REQUEST,
             )
         }
     }

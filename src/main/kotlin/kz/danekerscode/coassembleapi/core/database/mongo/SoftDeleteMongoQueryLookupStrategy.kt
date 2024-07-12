@@ -18,20 +18,19 @@ import java.lang.reflect.Method
 class SoftDeleteMongoQueryLookupStrategy(
     private val strategy: QueryLookupStrategy,
     private val mongoOperations: MongoOperations,
-    private val evaluationContextProvider: QueryMethodEvaluationContextProvider
+    private val evaluationContextProvider: QueryMethodEvaluationContextProvider,
 ) : QueryLookupStrategy {
-
     override fun resolveQuery(
         method: Method,
         metadata: RepositoryMetadata,
         factory: ProjectionFactory,
-        namedQueries: NamedQueries
+        namedQueries: NamedQueries,
     ): RepositoryQuery {
         println(method.name)
         val repositoryQuery: RepositoryQuery = strategy.resolveQuery(method, metadata, factory, namedQueries)
 
-        if (method.getAnnotation(SeesSoftlyDeletedRecords::class.java) != null
-            || repositoryQuery !is PartTreeMongoQuery
+        if (method.getAnnotation(SeesSoftlyDeletedRecords::class.java) != null ||
+            repositoryQuery !is PartTreeMongoQuery
         ) {
             return repositoryQuery
         }
@@ -39,18 +38,21 @@ class SoftDeleteMongoQueryLookupStrategy(
         return SoftDeletePartTreeMongoQuery(repositoryQuery)
     }
 
-
     inner class SoftDeletePartTreeMongoQuery(partTreeQuery: PartTreeMongoQuery) : PartTreeMongoQuery(
-        partTreeQuery.queryMethod, mongoOperations, SpelExpressionParser(), evaluationContextProvider
+        partTreeQuery.queryMethod,
+        mongoOperations,
+        SpelExpressionParser(),
+        evaluationContextProvider,
     ) {
+        override fun createQuery(accessor: ConvertingParameterAccessor): Query =
+            super
+                .createQuery(accessor)
+                .apply { withNotDeleted(this) }
 
-        override fun createQuery(accessor: ConvertingParameterAccessor): Query = super
-            .createQuery(accessor)
-            .apply { withNotDeleted(this) }
-
-        override fun createCountQuery(accessor: ConvertingParameterAccessor): Query = super
-            .createCountQuery(accessor)
-            .apply { withNotDeleted(this) }
+        override fun createCountQuery(accessor: ConvertingParameterAccessor): Query =
+            super
+                .createCountQuery(accessor)
+                .apply { withNotDeleted(this) }
 
         private fun withNotDeleted(query: Query): Query = query.addCriteria(notDeleted())
 

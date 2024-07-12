@@ -15,24 +15,25 @@ import java.io.File
 @Service
 class FileServiceImpl(
     private val gridFsOperations: GridFsOperations,
-    private val gridFsTemplate: GridFsTemplate
+    private val gridFsTemplate: GridFsTemplate,
 ) : FileService {
+    override suspend fun uploadFile(file: MultipartFile): String =
+        gridFsTemplate
+            .store(
+                file.inputStream,
+                file.originalFilename,
+                file.basicDbObject(),
+            ).toHexString()
 
-    override suspend fun uploadFile(file: MultipartFile): String = gridFsTemplate
-        .store(
-            file.inputStream,
-            file.originalFilename,
-            file.basicDbObject()
-        ).toHexString()
-
-    override suspend fun deleteFile(id: String) = gridFsOperations
-        .delete(query(where("_id").`is`(id)))
+    override suspend fun deleteFile(id: String) =
+        gridFsOperations
+            .delete(query(where("_id").`is`(id)))
 
     override suspend fun downloadFile(id: String): GridFsResource {
-        val gridFSFile = gridFsOperations.findOne(query(where("_id").`is`(id)))
-            ?: throw EntityNotFoundException(File::class.java, "File not found with id: $id")
+        val gridFSFile =
+            gridFsOperations.findOne(query(where("_id").`is`(id)))
+                ?: throw EntityNotFoundException(File::class.java, "File not found with id: $id")
 
         return gridFsTemplate.getResource(gridFSFile)
     }
-
 }

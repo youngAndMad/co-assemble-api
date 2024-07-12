@@ -9,5 +9,5 @@ class CoAssembleProperties(
     val verificationTokenTtl: Duration,
     val mailLinkPrefix: String,
     val adminEmail: String,
-    val adminPassword: String
+    val adminPassword: String,
 )

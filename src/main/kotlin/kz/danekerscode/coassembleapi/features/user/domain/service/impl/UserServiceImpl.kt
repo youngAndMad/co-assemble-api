@@ -35,13 +35,13 @@ class UserServiceImpl(
     private var userMapper: UserMapper,
     private var passwordEncoder: PasswordEncoder,
     private var fileService: FileService,
-    private var coAssembleProperties: CoAssembleProperties
+    private var coAssembleProperties: CoAssembleProperties,
 ) : UserService {
-
     private var log: Logger = LoggerFactory.getLogger(this.javaClass)
 
     override suspend fun existsByEmailAndProvider(
-        username: String, provider: AuthType
+        username: String,
+        provider: AuthType,
     ): Boolean {
         log.debug("Checking if user exists by username: {} and provider: {}", username, provider)
         return userRepository.existsByEmailAndProvider(username, provider)
@@ -51,7 +51,7 @@ class UserServiceImpl(
 
     override suspend fun createUser(
         registerRequest: RegistrationRequest,
-        password: String
+        password: String,
     ): User =
         this.save(
             User(
@@ -59,13 +59,14 @@ class UserServiceImpl(
                 email = registerRequest.email,
                 password = passwordEncoder.encode(password),
                 provider = AuthType.MANUAL,
-                roles = mutableListOf(SecurityRole.ROLE_USER)
-            )
+                roles = mutableListOf(SecurityRole.ROLE_USER),
+            ),
         )
 
     override suspend fun verifyUserEmail(email: String): User {
-        val user = userRepository.findByEmail(email)
-            ?: throw UserPrincipalNotFoundException("User not found for email: $email")
+        val user =
+            userRepository.findByEmail(email)
+                ?: throw UserPrincipalNotFoundException("User not found for email: $email")
 
         if (!user.emailVerified) {
             user.emailVerified = true
@@ -74,25 +75,35 @@ class UserServiceImpl(
         return this.save(user)
     }
 
-    override suspend fun findByEmail(email: String): User? =
-        userRepository.findByEmail(email)
+    override suspend fun findByEmail(email: String): User? = userRepository.findByEmail(email)
 
     override suspend fun findById(id: String): User = userRepository.safeFindById(id)
 
-    override suspend fun updatePassword(email: String, updatedPassword: String) {
-        (userRepository.findByEmail(email)
-            ?: throw UserPrincipalNotFoundException("User not found for email: $email"))
+    override suspend fun updatePassword(
+        email: String,
+        updatedPassword: String,
+    ) {
+        (
+            userRepository.findByEmail(email)
+                ?: throw UserPrincipalNotFoundException("User not found for email: $email")
+        )
             .let { user ->
                 user.password = updatedPassword
                 userRepository.save(user)
             }
     }
 
-    override suspend fun me(email: String): UserDto = (userRepository
-        .findByEmail(email) ?: throw UserPrincipalNotFoundException("User not found for email: $email"))
-        .let { userMapper.toUserDto(it) }
+    override suspend fun me(email: String): UserDto =
+        (
+            userRepository
+                .findByEmail(email) ?: throw UserPrincipalNotFoundException("User not found for email: $email")
+        )
+            .let { userMapper.toUserDto(it) }
 
-    override suspend fun createAdmin(email: String, password: String) {
+    override suspend fun createAdmin(
+        email: String,
+        password: String,
+    ) {
         val existsByEmailAndProvider = existsByEmailAndProvider(email, AuthType.MANUAL)
         if (existsByEmailAndProvider) {
             log.info("Admin with email {} already exists", email)
@@ -104,7 +115,7 @@ class UserServiceImpl(
 
     override suspend fun uploadAvatar(
         currentUser: CoAssembleUserDetails,
-        file: MultipartFile
+        file: MultipartFile,
     ) {
         val uploadedFileId = fileService.uploadFile(file)
         currentUser.user.let {
@@ -115,11 +126,12 @@ class UserServiceImpl(
         }
     }
 
-    private fun constructAvatarForFileId(id: String?) = Avatar(
-        id = id,
-        uri = URI.create(constructDownloadFileUrl(id)),
-        external = false
-    )
+    private fun constructAvatarForFileId(id: String?) =
+        Avatar(
+            id = id,
+            uri = URI.create(constructDownloadFileUrl(id)),
+            external = false,
+        )
 
     private fun constructDownloadFileUrl(id: String?) = "${coAssembleProperties.domain}/api/v1/files/download/$id"
 
@@ -135,10 +147,11 @@ class UserServiceImpl(
             }
         }
 
-    private suspend fun resetUserProfileImage(user: User) = user.let {
-        it.image = null
-        this.save(it)
-    }
+    private suspend fun resetUserProfileImage(user: User) =
+        user.let {
+            it.image = null
+            this.save(it)
+        }
 
     override fun filterUsers(criteria: UserSearchCriteria): Flow<UserDto> {
         val query = Query()
@@ -147,8 +160,8 @@ class UserServiceImpl(
             query.addCriteria(
                 Criteria().orOperator(
                     Criteria.where("email").regex(it, "i"),
-                    Criteria.where("username").regex(it, "i")
-                )
+                    Criteria.where("username").regex(it, "i"),
+                ),
             )
         }
 
@@ -163,7 +176,7 @@ class UserServiceImpl(
 
     override suspend fun updateProfile(
         currentUser: CoAssembleUserDetails,
-        updateUserRequest: UpdateUserRequest
+        updateUserRequest: UpdateUserRequest,
     ): UserDto {
         val user = currentUser.user
         user.username = updateUserRequest.username

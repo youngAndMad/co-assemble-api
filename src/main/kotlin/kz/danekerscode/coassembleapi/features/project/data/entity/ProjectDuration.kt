@@ -11,5 +11,5 @@ data class ProjectDuration(
     @DBRef
     var project: Project,
     var start: LocalDate,
-    var finish: LocalDate? = null
+    var finish: LocalDate? = null,
 ) : BaseEntity()

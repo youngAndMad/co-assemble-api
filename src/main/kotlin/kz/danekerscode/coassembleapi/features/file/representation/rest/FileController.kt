@@ -17,13 +17,12 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/files")
 class FileController(
-    private var fileService: FileService
+    private var fileService: FileService,
 ) {
-
     @GetMapping("/download/{id}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     suspend fun downloadFile(
         @PathVariable id: String,
-        response: HttpServletResponse
+        response: HttpServletResponse,
     ): ResponseEntity<InputStreamResource> {
         val resource = fileService.downloadFile(id)
 
@@ -39,7 +38,10 @@ class FileController(
         return constructContentResponse(resource, "inline")
     }
 
-    private fun constructContentResponse(resource: GridFsResource, mode: String) = ResponseEntity.ok()
+    private fun constructContentResponse(
+        resource: GridFsResource,
+        mode: String,
+    ) = ResponseEntity.ok()
         .headers {
             it.set(HttpHeaders.CONTENT_DISPOSITION, "$mode; filename=\"${resource.filename}\"")
         }

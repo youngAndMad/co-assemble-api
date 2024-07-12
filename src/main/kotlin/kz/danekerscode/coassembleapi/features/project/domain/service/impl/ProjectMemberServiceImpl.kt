@@ -11,14 +11,16 @@ import org.springframework.stereotype.Service
 
 @Service
 class ProjectMemberServiceImpl(
-    private val projectMemberRepository: ProjectMemberRepository
+    private val projectMemberRepository: ProjectMemberRepository,
 ) : ProjectMemberService {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     override suspend fun deleteProjectMember(memberId: String) = projectMemberRepository.safeDelete(memberId)
 
-    override suspend fun addProjectMember(user: User, project: Project) {
+    override suspend fun addProjectMember(
+        user: User,
+        project: Project,
+    ) {
         ProjectMember(user = user, project = project).also {
             projectMemberRepository.save(it)
             log.info("Project member added: $it")

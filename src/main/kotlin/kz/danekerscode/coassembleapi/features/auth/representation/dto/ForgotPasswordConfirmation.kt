@@ -10,5 +10,5 @@ data class ForgotPasswordConfirmation(
     @field:NotBlank
     val token: String,
     @field:Password
-    val password: String
+    val password: String,
 )

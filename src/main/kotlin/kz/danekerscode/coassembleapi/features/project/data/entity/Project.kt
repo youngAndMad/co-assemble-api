@@ -28,7 +28,6 @@ data class Project(
     @ReadOnlyProperty
     var members: MutableList<ProjectMember> = mutableListOf(),
 ) : BaseEntity() {
-
     /**
      * Check if the user is the owner of the project
      * @param userDetails - user details to check
@@ -36,8 +35,10 @@ data class Project(
      * @author Daneker
      * 12.07.2024
      */
-    fun checkOwner(userDetails: CoAssembleUserDetails) = if (userDetails.user.id != owner.id) {
-        throw AuthProcessingException("You are not the owner of this project", HttpStatus.FORBIDDEN)
-    } else Unit
-
+    fun checkOwner(userDetails: CoAssembleUserDetails) =
+        if (userDetails.user.id != owner.id) {
+            throw AuthProcessingException("You are not the owner of this project", HttpStatus.FORBIDDEN)
+        } else {
+            Unit
+        }
 }

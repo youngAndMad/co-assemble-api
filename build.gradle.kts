@@ -1,6 +1,9 @@
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+
 plugins {
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 
     kotlin("jvm") version "1.9.24"
     kotlin("kapt") version "1.9.10"
@@ -54,11 +57,10 @@ kapt {
         // https://kotlinlang.org/docs/reference/kapt.html#annotation-processor-arguments
         // https://mapstruct.org/documentation/stable/reference/html/#configuration-options
         arg("mapstruct.defaultComponentModel", "spring")
-        arg("mapstruct.unmappedSourcePolicy"  , "IGNORE")
-        arg("mapstruct.unmappedTargetPolicy"  , "IGNORE")
+        arg("mapstruct.unmappedSourcePolicy", "IGNORE")
+        arg("mapstruct.unmappedTargetPolicy", "IGNORE")
     }
 }
-
 
 kotlin {
     compilerOptions {
@@ -74,4 +76,22 @@ tasks {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    debug.set(true)
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    outputColorName.set("RED")
+    ignoreFailures.set(true)
+    enableExperimentalRules.set(true)
+    reporters {
+        reporter(ReporterType.PLAIN)
+        reporter(ReporterType.CHECKSTYLE)
+    }
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
 }

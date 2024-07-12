@@ -7,21 +7,23 @@ import kz.danekerscode.coassembleapi.features.project.representation.dto.CreateP
 import kz.danekerscode.coassembleapi.features.project.representation.dto.UpdateProjectRequest
 
 interface ProjectService {
-
     suspend fun createProject(
         createProjectRequest: CreateProjectRequest,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     ): IdResult
 
     suspend fun findProject(id: String): Project
 
     suspend fun toggleProjectFinished(project: Project)
 
-    suspend fun deleteProject(id: String, currentUser: CoAssembleUserDetails)
+    suspend fun deleteProject(
+        id: String,
+        currentUser: CoAssembleUserDetails,
+    )
 
     suspend fun updateProject(
         id: String,
         updateProjectRequest: UpdateProjectRequest,
-        currentUser: CoAssembleUserDetails
+        currentUser: CoAssembleUserDetails,
     )
 }

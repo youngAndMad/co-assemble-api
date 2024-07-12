@@ -7,5 +7,5 @@ data class LoginRequest(
     @field:Email
     val email: String,
     @field:Password
-    val password: String
+    val password: String,
 )

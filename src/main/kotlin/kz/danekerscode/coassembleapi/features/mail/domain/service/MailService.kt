@@ -6,14 +6,10 @@ import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMail
  * Service for sending mail messages
  * */
 interface MailService {
-
     /**
      * Send mail message
      * @param sendMailMessageEvent arguments for sending mail message
      * @return the result of sending
      * */
-    suspend fun sendMailMessage(
-        sendMailMessageEvent: SendMailMessageEvent
-    )
-
+    suspend fun sendMailMessage(sendMailMessageEvent: SendMailMessageEvent)
 }

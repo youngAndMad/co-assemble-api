@@ -11,39 +11,41 @@ import org.springframework.stereotype.Component
 @Component
 class CoAssembleAuthorizationRequestRepository :
     AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
-
     private var cookieExpireSeconds = 180
 
     override fun loadAuthorizationRequest(request: HttpServletRequest?): OAuth2AuthorizationRequest {
-        val cookie = CookieUtils.getCookie(request, CoAssembleConstants.OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
-            ?: return null!!
+        val cookie =
+            CookieUtils.getCookie(request, CoAssembleConstants.OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
+                ?: return null!!
 
         return CookieUtils.deserialize(cookie, OAuth2AuthorizationRequest::class.java)
     }
 
     override fun removeAuthorizationRequest(
         request: HttpServletRequest?,
-        response: HttpServletResponse?
+        response: HttpServletResponse?,
     ): OAuth2AuthorizationRequest = this.loadAuthorizationRequest(request)
 
     override fun saveAuthorizationRequest(
         authorizationRequest: OAuth2AuthorizationRequest?,
         request: HttpServletRequest?,
-        response: HttpServletResponse?
+        response: HttpServletResponse?,
     ) {
         if (authorizationRequest == null) {
             CookieUtils.deleteCookie(
                 request!!,
                 response!!,
-                CoAssembleConstants.OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME
+                CoAssembleConstants.OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME,
             )
             CookieUtils.deleteCookie(request, response, CoAssembleConstants.REDIRECT_URI_PARAM_COOKIE_NAME)
             return
         }
 
         CookieUtils.addCookie(
-            response!!, CoAssembleConstants.OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME,
-            CookieUtils.serialize(authorizationRequest), cookieExpireSeconds
+            response!!,
+            CoAssembleConstants.OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME,
+            CookieUtils.serialize(authorizationRequest),
+            cookieExpireSeconds,
         ).let {
             val redirectUriAfterLogin = request?.getParameter(CoAssembleConstants.REDIRECT_URI_PARAM_COOKIE_NAME)
             if (!redirectUriAfterLogin.isNullOrBlank()) {
@@ -51,7 +53,7 @@ class CoAssembleAuthorizationRequestRepository :
                     response,
                     CoAssembleConstants.REDIRECT_URI_PARAM_COOKIE_NAME,
                     redirectUriAfterLogin,
-                    cookieExpireSeconds
+                    cookieExpireSeconds,
                 )
             }
         }

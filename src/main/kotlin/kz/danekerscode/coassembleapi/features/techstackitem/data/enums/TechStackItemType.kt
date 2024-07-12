@@ -15,5 +15,5 @@ enum class TechStackItemType {
     IOT,
     DATA_ANALYTICS,
     UI_UX,
-    OTHER
+    OTHER,
 }

@@ -12,20 +12,20 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Project Invitations")
 @RequestMapping("api/v1/project-invitations")
 class ProjectInvitationController(
-    private val projectInvitationService: ProjectInvitationService
+    private val projectInvitationService: ProjectInvitationService,
 ) {
     @PostMapping("/invite")
     @ResponseStatus(HttpStatus.CREATED)
     suspend fun inviteMember(
         @RequestBody actionPayload: ProjectMemberAction,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectInvitationService.inviteMember(actionPayload, currentUser)
 
     @PostMapping("/accept/{projectId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun acceptInvitation(
         @PathVariable projectId: String,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectInvitationService
         .acceptInvitation(projectId, currentUser)
 
@@ -33,15 +33,13 @@ class ProjectInvitationController(
     @PostMapping("/reject/{projectId}")
     suspend fun rejectInvitation(
         @PathVariable projectId: String,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectInvitationService.rejectInvitation(projectId, currentUser)
 
     @DeleteMapping("/cancel/{invitationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun cancelInvitation(
         @PathVariable invitationId: String,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
-    ) =
-        projectInvitationService.cancelInvitation(invitationId, currentUser)
-
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
+    ) = projectInvitationService.cancelInvitation(invitationId, currentUser)
 }

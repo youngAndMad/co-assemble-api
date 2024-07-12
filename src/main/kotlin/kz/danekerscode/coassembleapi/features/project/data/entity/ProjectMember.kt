@@ -14,5 +14,5 @@ data class ProjectMember(
     @DBRef
     var project: Project,
     var joinedAt: LocalDateTime = LocalDateTime.now(),
-    var participationDescription: String? = null
+    var participationDescription: String? = null,
 ) : BaseEntity()

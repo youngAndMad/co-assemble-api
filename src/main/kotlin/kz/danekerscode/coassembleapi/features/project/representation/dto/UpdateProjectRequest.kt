@@ -9,5 +9,5 @@ package kz.danekerscode.coassembleapi.features.project.representation.dto
  */
 data class UpdateProjectRequest(
     val name: String,
-    val goal: String
+    val goal: String,
 )

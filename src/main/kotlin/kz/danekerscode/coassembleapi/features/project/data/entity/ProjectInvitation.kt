@@ -16,5 +16,5 @@ data class ProjectInvitation(
     var user: User,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     var project: Project,
-    var status: ProjectInvitationStatus = ProjectInvitationStatus.PENDING
+    var status: ProjectInvitationStatus = ProjectInvitationStatus.PENDING,
 ) : BaseEntity()

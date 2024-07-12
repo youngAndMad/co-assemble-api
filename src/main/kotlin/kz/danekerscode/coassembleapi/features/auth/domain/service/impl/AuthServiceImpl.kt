@@ -3,6 +3,7 @@ package kz.danekerscode.coassembleapi.features.auth.domain.service.impl
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import kz.danekerscode.coassembleapi.core.config.properties.CoAssembleProperties
+import kz.danekerscode.coassembleapi.core.domain.errors.AuthProcessingException
 import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.auth.data.enums.VerificationTokenType
@@ -17,7 +18,6 @@ import kz.danekerscode.coassembleapi.features.mail.representation.event.SendMail
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
-import kz.danekerscode.coassembleapi.core.domain.errors.AuthProcessingException
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
@@ -38,22 +38,22 @@ class AuthServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val coAssembleProperties: CoAssembleProperties,
     private val verificationTokenService: VerificationTokenService,
-    private val eventBus: ApplicationEventPublisher
+    private val eventBus: ApplicationEventPublisher,
 ) : AuthService {
-
     private var log = LoggerFactory.getLogger(this::class.java)
 
     override suspend fun login(
         loginRequest: LoginRequest,
         request: HttpServletRequest,
-        response: HttpServletResponse
+        response: HttpServletResponse,
     ): UserDto {
-        val auth = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                loginRequest.email,
-                loginRequest.password
+        val auth =
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    loginRequest.email,
+                    loginRequest.password,
+                ),
             )
-        )
 
         val coAssembleUserDetails = auth.principal as CoAssembleUserDetails
         val user = coAssembleUserDetails.user
@@ -75,20 +75,21 @@ class AuthServiceImpl(
         }
     }
 
-    private fun validLoginAddr(user: User, request: HttpServletRequest) =
-        user.lastLoginAddress == null || user.lastLoginAddress == request.remoteAddr
-
+    private fun validLoginAddr(
+        user: User,
+        request: HttpServletRequest,
+    ) = user.lastLoginAddress == null || user.lastLoginAddress == request.remoteAddr
 
     private fun checkLoginEventProduceCase(
         it: UserDto,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ) {
         if (it.provider == AuthType.MANUAL) {
             eventBus.publishEvent(
                 UserLoginEvent(
                     userEmail = it.email,
-                    ip = request.remoteAddr
-                )
+                    ip = request.remoteAddr,
+                ),
             )
         }
     }
@@ -98,20 +99,22 @@ class AuthServiceImpl(
         if (existsByEmailAndProvider) {
             throw AuthProcessingException(
                 "User with email ${registerRequest.email} already exists",
-                HttpStatus.BAD_REQUEST
+                HttpStatus.BAD_REQUEST,
             )
         }
         log.info("Creating user with email {}", registerRequest.email)
         createUserAndSendVerification(registerRequest)
     }
 
-    override suspend fun resendEmail(email: String, type: VerificationTokenType) {
+    override suspend fun resendEmail(
+        email: String,
+        type: VerificationTokenType,
+    ) {
         val existsByEmailAndProvider = userService.existsByEmailAndProvider(email, AuthType.MANUAL)
         if (existsByEmailAndProvider) {
-
             throw AuthProcessingException(
                 "User with email $email not found",
-                HttpStatus.NOT_FOUND
+                HttpStatus.NOT_FOUND,
             )
         }
         verificationTokenService.revokeForUserByType(email, type)
@@ -122,11 +125,12 @@ class AuthServiceImpl(
                     type.mailMessageType,
                     mapOf(
                         "receiverEmail" to email,
-                        "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
-                            .toString(),
-                        "link" to constructMailVerificationLink(it.value, email)
-                    )
-                )
+                        "verificationTokenTtl" to
+                            coAssembleProperties.verificationTokenTtl.toMinutes()
+                                .toString(),
+                        "link" to constructMailVerificationLink(it.value, email),
+                    ),
+                ),
             )
         }
     }
@@ -137,7 +141,7 @@ class AuthServiceImpl(
                 log.info("User with email {} created", user.email)
                 verificationTokenService.generateForUser(
                     registerRequest.email,
-                    VerificationTokenType.MAIL_VERIFICATION
+                    VerificationTokenType.MAIL_VERIFICATION,
                 )
                     .also { token ->
                         log.info("Verification token generated for user {}", user.email)
@@ -147,21 +151,26 @@ class AuthServiceImpl(
                                 MailMessageType.MAIL_CONFIRMATION,
                                 mapOf(
                                     "receiverEmail" to registerRequest.email,
-                                    "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
-                                        .toString(),
-                                    "link" to constructMailVerificationLink(token.value, user.email)
-                                )
-                            )
+                                    "verificationTokenTtl" to
+                                        coAssembleProperties.verificationTokenTtl.toMinutes()
+                                            .toString(),
+                                    "link" to constructMailVerificationLink(token.value, user.email),
+                                ),
+                            ),
                         )
                     }
             }
 
-    override suspend fun verifyEmail(token: String, email: String): UserDto {
-        val verificationToken = verificationTokenService.findByValueAndUserEmail(
-            token,
-            email,
-            VerificationTokenType.MAIL_VERIFICATION
-        ).also { it.checkValidation() }
+    override suspend fun verifyEmail(
+        token: String,
+        email: String,
+    ): UserDto {
+        val verificationToken =
+            verificationTokenService.findByValueAndUserEmail(
+                token,
+                email,
+                VerificationTokenType.MAIL_VERIFICATION,
+            ).also { it.checkValidation() }
 
         verificationTokenService.revokeById(verificationToken.id!!)
         userService.verifyUserEmail(email)
@@ -170,25 +179,24 @@ class AuthServiceImpl(
             SendMailMessageEvent(
                 receiver = email,
                 type = MailMessageType.GREETING,
-                data = mapOf("receiverEmail" to email, "domain" to coAssembleProperties.domain)
-            )
+                data = mapOf("receiverEmail" to email, "domain" to coAssembleProperties.domain),
+            ),
         )
 
         return userService.me(email)
     }
 
-    override suspend fun forgotPasswordRequest(
-        email: String
-    ) {
-        val user = userService.findByEmail(email) ?: throw AuthProcessingException(
-            "User with email $email not found",
-            HttpStatus.NOT_FOUND
-        )
+    override suspend fun forgotPasswordRequest(email: String) {
+        val user =
+            userService.findByEmail(email) ?: throw AuthProcessingException(
+                "User with email $email not found",
+                HttpStatus.NOT_FOUND,
+            )
 
         if (user.provider != AuthType.MANUAL) {
             throw AuthProcessingException(
                 "User with email $email not found",
-                HttpStatus.NOT_FOUND
+                HttpStatus.NOT_FOUND,
             )
         }
 
@@ -200,38 +208,41 @@ class AuthServiceImpl(
                         MailMessageType.FORGOT_PASSWORD,
                         mapOf(
                             "receiverEmail" to email,
-                            "verificationTokenTtl" to coAssembleProperties.verificationTokenTtl.toMinutes()
-                                .toString(),
-                            "link" to "${coAssembleProperties.mailLinkPrefix}/forgot-password/confirm/$email?token=${token.value}"
-                        )
-                    )
+                            "verificationTokenTtl" to
+                                coAssembleProperties.verificationTokenTtl.toMinutes()
+                                    .toString(),
+                            "link" to "${coAssembleProperties.mailLinkPrefix}/forgot-password/confirm/$email?token=${token.value}",
+                        ),
+                    ),
                 )
             }
     }
 
     override suspend fun forgotPasswordConfirm(forgotPasswordConfirmation: ForgotPasswordConfirmation) {
-        val verificationToken = verificationTokenService.findByValueAndUserEmail(
-            forgotPasswordConfirmation.token,
-            forgotPasswordConfirmation.email,
-            VerificationTokenType.FORGOT_PASSWORD
-        )
+        val verificationToken =
+            verificationTokenService.findByValueAndUserEmail(
+                forgotPasswordConfirmation.token,
+                forgotPasswordConfirmation.email,
+                VerificationTokenType.FORGOT_PASSWORD,
+            )
         verificationTokenService
             .revokeById(verificationToken.id!!)
 
         userService.updatePassword(
             forgotPasswordConfirmation.email,
-            passwordEncoder.encode(forgotPasswordConfirmation.password)
+            passwordEncoder.encode(forgotPasswordConfirmation.password),
         )
 
         publishMailEvent(
             SendMailMessageEvent(
                 receiver = forgotPasswordConfirmation.email,
                 type = MailMessageType.PASSWORD_CHANGED,
-                data = mapOf(
-                    "receiverEmail" to forgotPasswordConfirmation.email,
-                    "loginPageLink" to "${coAssembleProperties.domain}/auth/sign-in"
-                )
-            )
+                data =
+                    mapOf(
+                        "receiverEmail" to forgotPasswordConfirmation.email,
+                        "loginPageLink" to "${coAssembleProperties.domain}/auth/sign-in",
+                    ),
+            ),
         )
     }
 
@@ -241,9 +252,10 @@ class AuthServiceImpl(
             else -> throw AuthProcessingException("Invalid principal type", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
-    private fun constructMailVerificationLink(verificationToken: String, email: String): String =
-        "${coAssembleProperties.mailLinkPrefix}/verify-email?email=$email&token=$verificationToken"
+    private fun constructMailVerificationLink(
+        verificationToken: String,
+        email: String,
+    ): String = "${coAssembleProperties.mailLinkPrefix}/verify-email?email=$email&token=$verificationToken"
 
     private fun publishMailEvent(event: SendMailMessageEvent) = eventBus.publishEvent(event)
 }
-

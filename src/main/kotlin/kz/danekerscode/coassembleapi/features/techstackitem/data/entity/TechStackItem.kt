@@ -9,5 +9,5 @@ class TechStackItem(
     val id: String? = null,
     var name: String,
     var description: String,
-    var type: TechStackItemType
+    var type: TechStackItemType,
 ) : BaseEntity()

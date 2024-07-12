@@ -8,12 +8,14 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface VerificationTokenRepository : CoroutineCrudRepository<VerificationToken, String> {
-
     suspend fun findByValueAndUserEmailAndType(
         value: String,
         userEmail: String,
-        type: VerificationTokenType
+        type: VerificationTokenType,
     ): VerificationToken?
 
-    suspend fun findAllByUserEmailAndType(userEmail: String, type: VerificationTokenType): Flow<VerificationToken>
+    suspend fun findAllByUserEmailAndType(
+        userEmail: String,
+        type: VerificationTokenType,
+    ): Flow<VerificationToken>
 }

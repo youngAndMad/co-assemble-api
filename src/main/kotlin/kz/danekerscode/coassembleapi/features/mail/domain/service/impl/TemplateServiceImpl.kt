@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TemplateServiceImpl(
-    private var ftlConfiguration: Configuration
+    private var ftlConfiguration: Configuration,
 ) : TemplateService {
-
-    override suspend fun getTemplate(templateName: String): Template =
-        ftlConfiguration.getTemplate(templateName)
-
+    override suspend fun getTemplate(templateName: String): Template = ftlConfiguration.getTemplate(templateName)
 }

@@ -23,9 +23,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/projects")
 class ProjectController(
     private val projectService: ProjectService,
-    private val projectDurationService: ProjectDurationService
+    private val projectDurationService: ProjectDurationService,
 ) {
-
     /**
      * Endpoint for creating a new project
      * @param createProjectRequest - request body for creating a new project
@@ -38,7 +37,7 @@ class ProjectController(
     @Operation(summary = "Create new project")
     suspend fun createProject(
         @RequestBody createProjectRequest: CreateProjectRequest,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectService.createProject(createProjectRequest, currentUser)
 
     /**
@@ -50,7 +49,9 @@ class ProjectController(
      */
     @GetMapping("{id}")
     @Operation(summary = "Find project by id")
-    suspend fun findProject(@PathVariable id: String) = projectService.findProject(id)
+    suspend fun findProject(
+        @PathVariable id: String,
+    ) = projectService.findProject(id)
 
     /**
      * Endpoint for toggling the status of a project
@@ -63,7 +64,7 @@ class ProjectController(
     @Operation(summary = "Toggle project status")
     suspend fun toggleProjectStatus(
         @PathVariable id: String,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectDurationService.toggleProjectDuration(id, currentUser)
 
     /**
@@ -78,7 +79,7 @@ class ProjectController(
     @Operation(summary = "Delete project")
     suspend fun deleteProject(
         @PathVariable id: String,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectService.deleteProject(id, currentUser)
 
     /**
@@ -94,6 +95,6 @@ class ProjectController(
     suspend fun updateProject(
         @PathVariable id: String,
         @RequestBody updateProjectRequest: UpdateProjectRequest,
-        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails,
     ) = projectService.updateProject(id, updateProjectRequest, currentUser)
 }

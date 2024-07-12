@@ -24,15 +24,14 @@ import java.util.*
 class CoAssembleAuthenticationSuccessHandler(
     private val userService: UserService,
     private val githubApiClient: IdentityProviderClient,
-    private val applicationScope: CoroutineScope
+    private val applicationScope: CoroutineScope,
 ) : AuthenticationSuccessHandler {
-
     private val log: Logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun onAuthenticationSuccess(
         request: HttpServletRequest?,
         response: HttpServletResponse?,
-        authentication: Authentication?
+        authentication: Authentication?,
     ) {
         authentication ?: return
 
@@ -58,23 +57,25 @@ class CoAssembleAuthenticationSuccessHandler(
                     log.info(
                         "User with email: {} and provider: {} does not exist. Creating new user",
                         userEmail,
-                        provider
+                        provider,
                     )
 
-                    val user = User(
-                        username = userEmail,
-                        email = userEmail,
-                        provider = provider,
-                        roles = mutableListOf(SecurityRole.ROLE_USER),
-                        emailVerified = true,
-                    )
+                    val user =
+                        User(
+                            username = userEmail,
+                            email = userEmail,
+                            provider = provider,
+                            roles = mutableListOf(SecurityRole.ROLE_USER),
+                            emailVerified = true,
+                        )
 
                     if (principal.attributes.containsKey(OAUTH2_PRINCIPAL_AVATAR_URL)) {
-                        user.image = Avatar(
-                            external = true,
-                            id = UUID.randomUUID().toString(),
-                            uri = URI.create(principal.attributes[OAUTH2_PRINCIPAL_AVATAR_URL].toString())
-                        )
+                        user.image =
+                            Avatar(
+                                external = true,
+                                id = UUID.randomUUID().toString(),
+                                uri = URI.create(principal.attributes[OAUTH2_PRINCIPAL_AVATAR_URL].toString()),
+                            )
                     }
 
                     userService.save(user).also {
@@ -89,5 +90,4 @@ class CoAssembleAuthenticationSuccessHandler(
             }
         }
     }
-
 }

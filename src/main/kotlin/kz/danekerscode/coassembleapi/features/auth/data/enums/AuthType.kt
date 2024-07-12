@@ -2,10 +2,12 @@ package kz.danekerscode.coassembleapi.features.auth.data.enums
 
 enum class AuthType {
     GITHUB,
-    MANUAL;
+    MANUAL,
+    ;
 
     companion object {
-        fun forClientRegistrationId(clientRegistrationId: String): AuthType? = entries
-            .firstOrNull { it.name.equals(clientRegistrationId, ignoreCase = true) }
+        fun forClientRegistrationId(clientRegistrationId: String): AuthType? =
+            entries
+                .firstOrNull { it.name.equals(clientRegistrationId, ignoreCase = true) }
     }
 }

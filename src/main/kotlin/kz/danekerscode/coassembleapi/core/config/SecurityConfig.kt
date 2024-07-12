@@ -25,9 +25,8 @@ import org.springframework.security.web.context.SecurityContextRepository
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val env: Environment
+    private val env: Environment,
 ) {
-
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
@@ -38,9 +37,8 @@ class SecurityConfig(
         coAssembledLogoutSuccessHandler: CoAssembleLogoutSuccessHandler,
 //        coAssembleAuthFilter: CoAssembleAuthFilter,
         coAssembleAuthenticationSuccessHandler: CoAssembleAuthenticationSuccessHandler,
-        coAssembleAuthorizationRequestRepository: CoAssembleAuthorizationRequestRepository
+        coAssembleAuthorizationRequestRepository: CoAssembleAuthorizationRequestRepository,
     ): SecurityFilterChain {
-
         if (env.isRunningInLocal()) {
             http.authorizeHttpRequests {
                 it.requestMatchers("/**").permitAll()
@@ -68,15 +66,15 @@ class SecurityConfig(
                     .anyRequest().authenticated()
             }
             /*
-              * If you request POST /logout, then it will perform the following default operations using a series of LogoutHandlers:
-              * Invalidate the HTTP session (SecurityContextLogoutHandler)
-              * Clear the SecurityContextHolderStrategy (SecurityContextLogoutHandler)
-              * Clear the SecurityContextRepository (SecurityContextLogoutHandler)
-              * Clean up any RememberMe authentication (TokenRememberMeServices / PersistentTokenRememberMeServices)
-              * Clear out any saved CSRF token (CsrfLogoutHandler)
-              * Fire a LogoutSuccessEvent (LogoutSuccessEventPublishingLogoutHandler)
-              * Once completed, then it will exercise its default LogoutSuccessHandler which redirects to /login?logout.
-              */
+             * If you request POST /logout, then it will perform the following default operations using a series of LogoutHandlers:
+             * Invalidate the HTTP session (SecurityContextLogoutHandler)
+             * Clear the SecurityContextHolderStrategy (SecurityContextLogoutHandler)
+             * Clear the SecurityContextRepository (SecurityContextLogoutHandler)
+             * Clean up any RememberMe authentication (TokenRememberMeServices / PersistentTokenRememberMeServices)
+             * Clear out any saved CSRF token (CsrfLogoutHandler)
+             * Fire a LogoutSuccessEvent (LogoutSuccessEventPublishingLogoutHandler)
+             * Once completed, then it will exercise its default LogoutSuccessHandler which redirects to /login?logout.
+             */
             .logout {
                 it
                     .logoutSuccessHandler(coAssembledLogoutSuccessHandler)
@@ -94,23 +92,23 @@ class SecurityConfig(
     }
 
     @Bean
-    fun securityContextRepository(): SecurityContextRepository =
-        HttpSessionSecurityContextRepository()
+    fun securityContextRepository(): SecurityContextRepository = HttpSessionSecurityContextRepository()
 
     @Bean
     fun authenticationProvider(
         passwordEncoder: PasswordEncoder,
-        userDetailsService: UserDetailsService
-    ): AuthenticationProvider = DaoAuthenticationProvider().apply {
-        setPasswordEncoder(passwordEncoder)
-        isHideUserNotFoundExceptions = false
-        setUserDetailsService(userDetailsService)
-    }
+        userDetailsService: UserDetailsService,
+    ): AuthenticationProvider =
+        DaoAuthenticationProvider().apply {
+            setPasswordEncoder(passwordEncoder)
+            isHideUserNotFoundExceptions = false
+            setUserDetailsService(userDetailsService)
+        }
 
     @Bean
     fun authenticationManager(
         http: HttpSecurity,
-        authenticationProvider: AuthenticationProvider
+        authenticationProvider: AuthenticationProvider,
     ): AuthenticationManager =
         http.getSharedObject(AuthenticationManagerBuilder::class.java)
             .authenticationProvider(authenticationProvider)

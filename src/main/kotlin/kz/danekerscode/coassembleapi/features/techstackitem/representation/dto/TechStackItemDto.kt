@@ -8,5 +8,5 @@ data class TechStackItemDto(
     val name: String,
     @field:NotBlank
     val description: String,
-    var type: TechStackItemType
+    var type: TechStackItemType,
 )

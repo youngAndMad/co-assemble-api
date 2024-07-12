@@ -11,9 +11,8 @@ import org.springframework.stereotype.Component
 @Component
 class MailEventListener(
     private val applicationScope: CoroutineScope,
-    private val mailService: MailService
+    private val mailService: MailService,
 ) {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     @EventListener
@@ -23,5 +22,4 @@ class MailEventListener(
             mailService.sendMailMessage(event)
         }
     }
-
 }

@@ -11,14 +11,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
-
     @ExceptionHandler(AuthProcessingException::class)
     fun handleAuthProcessingException(ex: AuthProcessingException): ResponseEntity<ProblemDetail> =
         ResponseEntity(
             ProblemDetail.forStatusAndDetail(
                 ex.status,
-                ex.message
-            ), ex.status
+                ex.message,
+            ),
+            ex.status,
         )
 
     @ExceptionHandler(EntityNotFoundException::class)
@@ -26,8 +26,8 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         ResponseEntity(
             ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
-                ex.message
-            ), HttpStatus.NOT_FOUND
+                ex.message,
+            ),
+            HttpStatus.NOT_FOUND,
         )
-
 }

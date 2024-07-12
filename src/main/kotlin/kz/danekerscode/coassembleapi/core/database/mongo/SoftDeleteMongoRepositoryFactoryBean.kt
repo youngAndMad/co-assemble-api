@@ -7,9 +7,7 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 import java.io.Serializable
 
 class SoftDeleteMongoRepositoryFactoryBean<T : Repository<S, ID>, S, ID : Serializable>(
-    repositoryInterface: Class<out T>
+    repositoryInterface: Class<out T>,
 ) : MongoRepositoryFactoryBean<T, S, ID>(repositoryInterface) {
-
-    override fun getFactoryInstance(operations: MongoOperations): RepositoryFactorySupport =
-        SoftDeleteMongoRepositoryFactory(operations)
+    override fun getFactoryInstance(operations: MongoOperations): RepositoryFactorySupport = SoftDeleteMongoRepositoryFactory(operations)
 }

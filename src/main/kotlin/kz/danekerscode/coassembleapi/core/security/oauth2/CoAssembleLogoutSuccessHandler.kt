@@ -11,9 +11,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class CoAssembleLogoutSuccessHandler(
-    clientRegistrationRepository: ClientRegistrationRepository
+    clientRegistrationRepository: ClientRegistrationRepository,
 ) : LogoutSuccessHandler {
-
     private val _oidcClientInitiatedLogoutSuccessHandler =
         OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository)
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -25,9 +24,9 @@ class CoAssembleLogoutSuccessHandler(
     override fun onLogoutSuccess(
         request: HttpServletRequest?,
         response: HttpServletResponse?,
-        authentication: Authentication?
+        authentication: Authentication?,
     ) {
         _oidcClientInitiatedLogoutSuccessHandler.onLogoutSuccess(request, response, authentication)
-        log.info("User {} has been logged out" , authentication?.name)
+        log.info("User {} has been logged out", authentication?.name)
     }
 }
