@@ -47,7 +47,6 @@ class VerificationTokenServiceImpl(
             value = generateToken(),
             userEmail = userEmail,
             type = type,
-            createdDate = LocalDateTime.now(),
             expireDate = LocalDateTime.now().plus(coAssembleProperties.verificationTokenTtl)
         )
 
