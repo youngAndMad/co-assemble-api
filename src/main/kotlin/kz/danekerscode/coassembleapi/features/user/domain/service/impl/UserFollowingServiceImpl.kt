@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 class UserFollowingServiceImpl(
     private val userFollowingRepository: UserFollowingRepository,
     private val userService: UserService,
-    private val userMapper: UserMapper
+    private val userMapper: UserMapper,
 ) : UserFollowingService {
     private val log = LoggerFactory.getLogger(javaClass)
 

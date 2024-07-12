@@ -7,7 +7,6 @@ import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserFollowingCount
 
 interface UserFollowingService {
-
     /**
      * Follows a user
      * @param currentUser the current user
