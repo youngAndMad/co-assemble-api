@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.project.data.entity
 
+import kz.danekerscode.coassembleapi.core.data.entity.BaseEntity
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
@@ -14,4 +15,4 @@ data class ProjectMember(
     var project: Project,
     var joinedAt: LocalDateTime = LocalDateTime.now(),
     var participationDescription: String? = null
-)
+) : BaseEntity()

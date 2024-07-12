@@ -15,19 +15,18 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 @SpringBootApplication
-@EnableMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean::class)
 @OpenAPIDefinition(info = Info(title = "CoAssemble API"))
 @EnableConfigurationProperties(CoAssembleProperties::class)
-class CoAssembleApiApplication
+class CoAssembleApiApplication {
+    @Configuration
+    class Test { // todo move to separate config class
+        @Bean
+        fun applicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
 
-@Configuration
-class Test { // todo move to separate config class
-    @Bean
-    fun applicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-}
-
-fun main(args: Array<String>) {
-    runApplication<CoAssembleApiApplication>(*args)
+    fun main(args: Array<String>) {
+        runApplication<CoAssembleApiApplication>(*args)
+    }
 }
 
 

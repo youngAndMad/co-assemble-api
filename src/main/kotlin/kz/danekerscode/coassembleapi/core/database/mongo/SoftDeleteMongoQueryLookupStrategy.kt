@@ -21,7 +21,6 @@ class SoftDeleteMongoQueryLookupStrategy(
     private val evaluationContextProvider: QueryMethodEvaluationContextProvider
 ) : QueryLookupStrategy {
 
-    //todo create base entity for all mongo documents
     override fun resolveQuery(
         method: Method,
         metadata: RepositoryMetadata,
@@ -39,22 +38,21 @@ class SoftDeleteMongoQueryLookupStrategy(
         return SoftDeletePartTreeMongoQuery(repositoryQuery)
     }
 
-    private fun notDeleted(): Criteria = Criteria.where("deleted").exists(false)
 
     inner class SoftDeletePartTreeMongoQuery(partTreeQuery: PartTreeMongoQuery) : PartTreeMongoQuery(
         partTreeQuery.queryMethod, mongoOperations, SpelExpressionParser(), evaluationContextProvider
     ) {
 
-        override fun createQuery(accessor: ConvertingParameterAccessor): Query {
-            val query: Query = super.createQuery(accessor)
-            return withNotDeleted(query)
-        }
+        override fun createQuery(accessor: ConvertingParameterAccessor): Query = super
+            .createQuery(accessor)
+            .apply { withNotDeleted(this) }
 
-        override fun createCountQuery(accessor: ConvertingParameterAccessor): Query {
-            val query: Query = super.createCountQuery(accessor)
-            return withNotDeleted(query)
-        }
+        override fun createCountQuery(accessor: ConvertingParameterAccessor): Query = super
+            .createCountQuery(accessor)
+            .apply { withNotDeleted(this) }
 
         private fun withNotDeleted(query: Query): Query = query.addCriteria(notDeleted())
+
+        private fun notDeleted(): Criteria = Criteria.where("deletedDate").isNull
     }
 }

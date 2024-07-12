@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.project.data.entity
 
+import kz.danekerscode.coassembleapi.core.data.entity.BaseEntity
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
 import org.springframework.data.annotation.ReadOnlyProperty
 import org.springframework.data.mongodb.core.mapping.DBRef
@@ -23,4 +24,4 @@ data class Project(
     @DocumentReference
     @ReadOnlyProperty
     var members: MutableList<ProjectMember> = mutableListOf(),
-)
+)  : BaseEntity()

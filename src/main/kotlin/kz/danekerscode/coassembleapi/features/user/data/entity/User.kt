@@ -1,5 +1,6 @@
 package kz.danekerscode.coassembleapi.features.user.data.entity
 
+import kz.danekerscode.coassembleapi.core.data.entity.BaseEntity
 import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.features.techstackitem.data.entity.TechStackItem
 import kz.danekerscode.coassembleapi.features.user.data.enums.SecurityRole
@@ -22,4 +23,4 @@ data class User(
     @Field
     val techStack: List<TechStackItem> = mutableListOf(),
     var lastLoginAddress: String? = null, // todo check in each login
-) : Serializable
+) : BaseEntity(), Serializable
