@@ -7,6 +7,7 @@ import kz.danekerscode.coassembleapi.features.user.representation.dto.UserSearch
 import kz.danekerscode.coassembleapi.features.user.data.entity.User
 import kz.danekerscode.coassembleapi.features.auth.data.enums.AuthType
 import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
+import kz.danekerscode.coassembleapi.features.user.representation.dto.UpdateUserRequest
 import org.springframework.web.multipart.MultipartFile
 
 interface UserService {
@@ -40,4 +41,6 @@ interface UserService {
     suspend fun deleteAvatar(currentUser: CoAssembleUserDetails)
 
     fun filterUsers(criteria: UserSearchCriteria): Flow<UserDto>
+
+    suspend fun updateProfile(currentUser: CoAssembleUserDetails, updateUserRequest: UpdateUserRequest): UserDto
 }

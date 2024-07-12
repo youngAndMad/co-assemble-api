@@ -13,6 +13,7 @@ import kz.danekerscode.coassembleapi.features.user.data.enums.SecurityRole
 import kz.danekerscode.coassembleapi.features.user.data.mapper.UserMapper
 import kz.danekerscode.coassembleapi.features.user.data.repository.UserRepository
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
+import kz.danekerscode.coassembleapi.features.user.representation.dto.UpdateUserRequest
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserDto
 import kz.danekerscode.coassembleapi.features.user.representation.dto.UserSearchCriteria
 import kz.danekerscode.coassembleapi.utils.safeFindById
@@ -158,5 +159,14 @@ class UserServiceImpl(
         return mongoTemplate.find(query, User::class.java)
             .map { userMapper.toUserDto(it) }
             .asFlow()
+    }
+
+    override suspend fun updateProfile(
+        currentUser: CoAssembleUserDetails,
+        updateUserRequest: UpdateUserRequest
+    ): UserDto {
+        val user = currentUser.user
+        user.username = updateUserRequest.username
+        return userMapper.toUserDto(this.save(user))
     }
 }
