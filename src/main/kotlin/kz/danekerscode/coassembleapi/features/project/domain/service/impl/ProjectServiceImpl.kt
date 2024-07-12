@@ -6,6 +6,7 @@ import kz.danekerscode.coassembleapi.features.project.data.entity.Project
 import kz.danekerscode.coassembleapi.features.project.data.repository.ProjectRepository
 import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectService
 import kz.danekerscode.coassembleapi.features.project.representation.dto.CreateProjectRequest
+import kz.danekerscode.coassembleapi.features.project.representation.dto.UpdateProjectRequest
 import kz.danekerscode.coassembleapi.features.user.domain.service.UserService
 import kz.danekerscode.coassembleapi.utils.safeFindById
 import org.slf4j.LoggerFactory
@@ -47,6 +48,22 @@ class ProjectServiceImpl(
         findProject(id).also {
             it.checkOwner(currentUser)
             projectRepository.delete(it)
+        }
+    }
+
+    override suspend fun updateProject(
+        id: String,
+        updateProjectRequest: UpdateProjectRequest,
+        currentUser: CoAssembleUserDetails
+    ) {
+        val project = findProject(id).apply {
+            checkOwner(currentUser)
+            goal = updateProjectRequest.goal
+            name = updateProjectRequest.name
+        }
+
+        projectRepository.save(project).also {
+            log.info("Updated project with id: $id by ${currentUser.user.email}")
         }
     }
 

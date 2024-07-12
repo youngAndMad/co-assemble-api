@@ -1,16 +1,13 @@
 package kz.danekerscode.coassembleapi.core.config
 
-import kz.danekerscode.coassembleapi.core.database.mongo.SoftDeleteMongoRepositoryFactoryBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.auditing.DateTimeProvider
 import org.springframework.data.mongodb.config.EnableMongoAuditing
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import java.time.LocalDateTime
 import java.util.*
 
 @Configuration
-
 @EnableMongoAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
 class MongoConfig {
 

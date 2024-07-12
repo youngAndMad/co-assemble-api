@@ -6,6 +6,7 @@ import kz.danekerscode.coassembleapi.core.security.CoAssembleUserDetails
 import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectDurationService
 import kz.danekerscode.coassembleapi.features.project.domain.service.ProjectService
 import kz.danekerscode.coassembleapi.features.project.representation.dto.CreateProjectRequest
+import kz.danekerscode.coassembleapi.features.project.representation.dto.UpdateProjectRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -78,6 +79,21 @@ class ProjectController(
     suspend fun deleteProject(
         @PathVariable id: String,
         @AuthenticationPrincipal currentUser: CoAssembleUserDetails
-    ) =
-        projectService.deleteProject(id, currentUser)
+    ) = projectService.deleteProject(id, currentUser)
+
+    /**
+     * Endpoint for updating a project
+     * @param id - id of the project to update
+     * @param updateProjectRequest - request body for updating the project
+     * @param currentUser - current user details: Will be injected by Spring Security
+     * @author Daneker
+     * 12.07.2024
+     */
+    @Operation(summary = "Update project")
+    @PatchMapping("{id}")
+    suspend fun updateProject(
+        @PathVariable id: String,
+        @RequestBody updateProjectRequest: UpdateProjectRequest,
+        @AuthenticationPrincipal currentUser: CoAssembleUserDetails
+    ) = projectService.updateProject(id, updateProjectRequest, currentUser)
 }
