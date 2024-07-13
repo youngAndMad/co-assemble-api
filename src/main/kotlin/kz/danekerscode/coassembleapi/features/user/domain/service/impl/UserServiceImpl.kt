@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.net.URI
+import java.net.URL
 import java.nio.file.attribute.UserPrincipalNotFoundException
 
 @Service
@@ -84,9 +85,9 @@ class UserServiceImpl(
         updatedPassword: String,
     ) {
         (
-            userRepository.findByEmail(email)
-                ?: throw UserPrincipalNotFoundException("User not found for email: $email")
-        )
+                userRepository.findByEmail(email)
+                    ?: throw UserPrincipalNotFoundException("User not found for email: $email")
+                )
             .let { user ->
                 user.password = updatedPassword
                 userRepository.save(user)
@@ -95,9 +96,9 @@ class UserServiceImpl(
 
     override suspend fun me(email: String): UserDto =
         (
-            userRepository
-                .findByEmail(email) ?: throw UserPrincipalNotFoundException("User not found for email: $email")
-        )
+                userRepository
+                    .findByEmail(email) ?: throw UserPrincipalNotFoundException("User not found for email: $email")
+                )
             .let { userMapper.toUserDto(it) }
 
     override suspend fun createAdmin(
@@ -129,7 +130,7 @@ class UserServiceImpl(
     private fun constructAvatarForFileId(id: String?) =
         Avatar(
             id = id,
-            uri = URI.create(constructDownloadFileUrl(id)),
+            url = URL(constructDownloadFileUrl(id)),
             external = false,
         )
 
@@ -182,4 +183,12 @@ class UserServiceImpl(
         user.username = updateUserRequest.username
         return userMapper.toUserDto(this.save(user))
     }
+
+    override suspend fun changeUserOnlineStatus(userId: String, online: Boolean): Unit =
+        findById(userId).run {
+            this.online = online
+            save(this)
+
+            log.info("User online status changed: {} -> {}", this.email, online)
+        }
 }

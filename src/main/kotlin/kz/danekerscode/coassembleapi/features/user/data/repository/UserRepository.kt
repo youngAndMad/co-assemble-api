@@ -13,4 +13,5 @@ interface UserRepository : CoroutineCrudRepository<User, String> {
         email: String,
         provider: AuthType,
     ): Boolean
+
 }

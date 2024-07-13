@@ -23,4 +23,5 @@ data class User(
     @Field
     val techStack: List<TechStackItem> = mutableListOf(),
     var lastLoginAddress: String? = null, // todo check in each login
+    var online: Boolean = false
 ) : BaseEntity(), Serializable

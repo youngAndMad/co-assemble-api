@@ -54,4 +54,6 @@ interface UserService {
         currentUser: CoAssembleUserDetails,
         updateUserRequest: UpdateUserRequest,
     ): UserDto
+
+    suspend fun changeUserOnlineStatus(userId: String, online: Boolean)
 }
