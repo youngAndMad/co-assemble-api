@@ -27,7 +27,11 @@ data class Project(
     @DocumentReference
     @ReadOnlyProperty
     var members: MutableList<ProjectMember> = mutableListOf(),
+    @DocumentReference
+    @ReadOnlyProperty
+    var links: MutableList<ProjectLink> = mutableListOf(),
 ) : BaseEntity() {
+
     /**
      * Check if the user is the owner of the project
      * @param userDetails - user details to check

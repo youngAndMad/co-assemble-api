@@ -11,14 +11,16 @@ import org.testcontainers.junit.jupiter.Container
 class MongoDBTestContainerConfig {
 
     companion object {
+        private const val MONGO_PORT = 270171
+
         @Container
         var mongoDBContainer: MongoDBContainer = MongoDBContainer("mongo:latest")
-            .withExposedPorts(27017)
+            .withExposedPorts(MONGO_PORT)
     }
 
     init {
         mongoDBContainer.start();
-        val mappedPort = mongoDBContainer.getMappedPort(27017);
+        val mappedPort = mongoDBContainer.getMappedPort(MONGO_PORT);
         System.setProperty("mongodb.container.port", mappedPort.toString());
     }
 

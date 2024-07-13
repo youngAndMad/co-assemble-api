@@ -17,7 +17,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import java.net.URI
+import java.net.URL
 import java.util.*
 
 @Component
@@ -74,7 +74,7 @@ class CoAssembleAuthenticationSuccessHandler(
                             Avatar(
                                 external = true,
                                 id = UUID.randomUUID().toString(),
-                                uri = URI.create(principal.attributes[OAUTH2_PRINCIPAL_AVATAR_URL].toString()),
+                                url = URL(principal.attributes[OAUTH2_PRINCIPAL_AVATAR_URL].toString()),
                             )
                     }
 
