@@ -11,6 +11,7 @@ import java.net.URL
  * @author Daneker
  * 13.07.2024
  */
+
 data class ProjectLinkRequest(
     var type: ProjectLinkType,
     var link: URL,
